@@ -1,0 +1,119 @@
+#: import SwapTransition kivy.uix.screenmanager.SwapTransition
+#: import SlideTransition kivy.uix.screenmanager.SlideTransition
+
+<ScreenManagement>:
+	transition: SwapTransition()
+	MainScreen:
+	NewsScreen:
+	WeatherScreen:
+	SettingScreen:
+	
+<MainScreen>:
+	name: "main"
+	GridLayout:
+		rows: 5
+		spacing: 0,0
+		ClockLabel:
+			name: "clock"
+			text: self.clock
+			size_hint: 0.2,0.2
+			font_size: 100	
+		DateLabel:
+			canvas.after:
+				Color:
+					rgba: 1,0,0,0.5
+				Rectangle: 
+					size: self.size
+					pos: self.pos
+			name: "date"
+			text: self.date
+			size_hint: 0.1, 0.1
+			font_size: 25
+		WeatherButton:
+			on_release: 
+				app.root.current = "weather"
+				app.root.transition = SlideTransition()
+			text: self.temperature
+			background_color: 0,0,0,1
+			font_size: 50
+			size_hint: 0.3,0.3
+			#text_size: self.size
+			#halign: "left"
+			#valign: "middle"
+			Image:
+				source: "news.png"
+				allow_stretch: True
+		Button:
+			canvas.after:
+				Color:
+					rgba: 1,0,0,0.5
+				Rectangle: 
+					size: self.size
+					pos: self.pos
+			on_release: 
+				app.root.current = "news"
+				app.root.transition = SlideTransition()
+			background_color: 0,0,0,1
+			text: "News                          >"
+			size_hint: 0.3, 0.3
+			font_size:50
+		Button:
+			on_release: 
+				app.root.current = "settings"
+				app.root.transition = SlideTransition()
+			background_color: 0,0,0,1
+			text: "Settings                      >"
+			size_hint: 0.3, 0.3
+			font_size:50
+
+			
+<WeatherScreen>:
+	name: "weather"
+	DrawInput
+	Button:
+		on_release: 
+			app.root.current = "main"
+			app.root.transition.direction = "right"
+			app.root.transition = SwapTransition()
+		pos: 0,1
+		text: "<"
+		background_color: 0,0,0,1
+		size_hint: 0.08,0.05
+		font_size:50
+
+		
+<NewsScreen>:
+	name: "news"
+	FloatLayout:
+		Button:
+			on_release: 
+				app.root.current = "main"
+				app.root.transition.direction = "right"
+				app.root.transition = SwapTransition()
+			pos: 0,1
+			text: "<"
+			background_color: 0,0,0,1
+			size_hint: 0.08,0.05
+			font_size:50
+		
+
+<SettingScreen>:
+	name: "settings"
+	DrawInput
+	Button:
+		on_release: 
+			app.root.current = "main"
+			app.root.transition.direction = "right"
+			app.root.transition = SwapTransition()
+		pos: 0,1
+		text: "<"
+		background_color: 0,0,0,1
+		size_hint: 0.08,0.05
+		font_size:50
+
+
+
+
+
+	
+	
