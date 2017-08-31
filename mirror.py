@@ -67,6 +67,13 @@ class WeatherButton(Button):
         temperature = str(int(weather.getTemperature())) + "°" # Convert to int before string to cut out decimal points
         self.text = temperature
 
+class NewsButton(Button):
+    pass
+
+class TitleListButton(Button):
+    pass
+
+
 class NewsScreen(Screen):
     pass
 
