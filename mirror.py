@@ -18,10 +18,10 @@ from kivy.uix.image import Image
 from weather import Weather
 from time import ctime, time
 from datetime import datetime
+from news import news
 
 
 weather = Weather()
-
 
 
 class MainScreen(Screen):
