@@ -15,13 +15,19 @@ from kivy.uix.scatter import Scatter
 from kivy.clock import Clock
 from kivy.properties import NumericProperty, StringProperty
 from kivy.uix.image import Image
+
+from kivy.core.window import Window
+Window.size = (450,700)
+
 from weather import Weather
+from news.source import Source
+from news.news import News
+
 from time import ctime, time
 from datetime import datetime
 
 
 weather = Weather()
-
 
 
 class MainScreen(Screen):
@@ -58,19 +64,30 @@ class WeatherButton(Button):
 
     def __init__(self, **kwargs):
         super(WeatherButton, self).__init__(**kwargs)
-        self.temperature = str(int(weather.getTemperature())) + "°" # Convert to int before string to cut out decimal points
-        Clock.schedule_interval(self.update_temperature, 600) # Update weather data every 10 minutes
-
+        self.temperature = str(int(weather.getTemperature())) + "°"  # Convert to int before string to cut out decimal points
+        Clock.schedule_interval(self.update_temperature, 600)  # Update weather data every 10 minutes
 
     def update_temperature(self):
         weather.updateCurrentData()
-        temperature = str(int(weather.getTemperature())) + "°" # Convert to int before string to cut out decimal points
+        temperature = str(int(weather.getTemperature())) + "°"  # Convert to int before string to cut out decimal points
         self.text = temperature
+
+class WeatherLabel(Label):
+    pass
 
 class NewsButton(Button):
     pass
 
-class TitleListButton(Button):
+class NewsIcon1(Button):
+    pass
+
+class NewsIcon2(Button):
+    pass
+
+class NewsIcon3(Button):
+    pass
+
+class SettingButton(Button):
     pass
 
 
