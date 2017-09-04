@@ -22,9 +22,13 @@
 	transition: SwapTransition()
 	MainScreen:
 	NewsScreen:
+	NewsSourceScreen:
 	WeatherScreen:
 	SettingScreen:
-	
+
+<TitleButton>:
+    background_color: 0,0,0,1
+
 <MainScreen>:
 	name: "main"
 	GridLayout:
@@ -61,6 +65,7 @@
 			    pos: self.parent.x + 125, self.parent.y + 25
 
 		NewsButton:
+		    id: news_button
 			on_release: 
 				app.root.current = "news"
 				app.root.transition = SlideTransition()
@@ -72,40 +77,45 @@
 			    allow_stretch: True
 				keep_ratio: False
 				pos: self.parent.x + 20, self.parent.y + (self.parent.height / 5.5)
-            GridLayout:
+            IconContainer:
+                id: icon_container
                 cols:3
-
                 pos:  self.parent.x + 130, self.parent.y + 45
                 width: 300
                 height: 75
-                NewsIcon:
-                    background_normal: 'espn.png'
-                    canvas.after:
-                        Color:
-                            rgba: 0,0,1,0.5
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                    size: self.texture_size
 
                 NewsIcon:
-                    canvas.after:
-                        Color:
-                            rgba: 0,1,0,0.5
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                    background_normal: 'bbc.png'
-                    size: self.texture_size
+                    name: str(news_button.preferredNewsIDs[0])
+                    id: news_button.preferredNewsIDs[0]
+                    background_normal: str(news_button.preferredNewsIDs[0]) + ".png"
+                    on_release:
+                        self.set_titles()
+                        app.root.transition = SlideTransition()
+                        app.root.transition.direction = 'left'
+                        app.root.current = "source"
+
 
                 NewsIcon:
-                    background_normal: 'national-geographic.png'
-                    canvas.after:
-                        Color:
-                            rgba: 1,0,0,0.5
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
+                    name: str(news_button.preferredNewsIDs[1])
+                    id: news_button.preferredNewsIDs[1]
+                    background_normal: str(news_button.preferredNewsIDs[1]) + ".png"
+                    on_release:
+                        self.set_titles()
+                        app.root.transition = SlideTransition()
+                        app.root.transition.direction = 'left'
+                        app.root.current = "source"
+
+
+                NewsIcon:
+                    name: str(news_button.preferredNewsIDs[2])
+                    id: news_button.preferredNewsIDs[2]
+                    background_normal: str(news_button.preferredNewsIDs[2]) + ".png"
+                    on_release:
+                        self.set_titles()
+                        app.root.transition = SlideTransition()
+                        app.root.transition.direction = 'left'
+                        app.root.current = "source"
+
 
 		SettingButton:
 			on_release: 
@@ -149,7 +159,28 @@
 			background_color: 0,0,0,1
 			size_hint: 0.08,0.05
 			font_size:50
-		
+
+
+<NewsSourceScreen>:
+    name: "source"
+    id: source
+    GridLayout:
+        id: grid
+        rows: len(source.titles)
+
+
+    FloatLayout:
+		Button:
+			on_release:
+				app.root.current = "main"
+				app.root.transition.direction = "right"
+				app.root.transition = SwapTransition()
+			pos: 0,1
+			text: "<"
+			background_color: 0,0,0,1
+			size_hint: 0.08,0.05
+			font_size:50
+
 
 <SettingScreen>:
 	name: "settings"

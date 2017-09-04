@@ -11,7 +11,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.scatter import Scatter
 from kivy.clock import Clock
-from kivy.properties import NumericProperty, StringProperty
+from kivy.properties import NumericProperty, StringProperty, ListProperty
 from kivy.uix.image import Image
 
 from kivy.core.window import Window
@@ -28,7 +28,15 @@ from news import news
 
 weather = Weather()
 news = news.News()
-preferedNews = news.set_preferred_sources()
+
+# This list contains a list of three preferred(chosen) sources
+preferredNews = news.set_preferred_sources()
+
+# This list of NewsArticles holds articles based on what icon is clicked
+# The title will be displayed in the NewsSourceScreen as buttons
+chosenTitles = list()
+
+
 
 
 class MainScreen(Screen):
@@ -77,10 +85,38 @@ class WeatherLabel(Label):
     pass
 
 class NewsButton(Button):
+    preferredNewsIDs = ListProperty()
+
+
+    def __init__(self,**kwargs):
+        super(NewsButton, self).__init__(**kwargs)
+
+        # Get the ids of the chosen preferred sources
+        # These ids will be used to identify the different icons on the main screen
+        for x in range(len(preferredNews)):
+            self.preferredNewsIDs.append(preferredNews[x].source['source_id'])
+
+class IconContainer(GridLayout):
     pass
 
+
 class NewsIcon(Button):
-    pass
+    titles = ListProperty()
+
+    def __init__(self, **kwargs):
+        super(NewsIcon, self).__init__(**kwargs)
+
+
+    def set_titles(self):
+        #Set titles based on which button was pressed, self.name will pass a source id
+        articles = news.get_articles_by_source(preferredNews, self.name)
+        self.titles = articles
+
+        # Set the global variable to contain the articles based on what icon was clicked
+        global chosenTitles
+        chosenTitles = articles
+
+
 
 
 class SettingButton(Button):
@@ -89,6 +125,28 @@ class SettingButton(Button):
 
 class NewsScreen(Screen):
     pass
+
+class TitleButton(Button):
+    pass
+
+class NewsSourceScreen(Screen):
+    titles = ListProperty()
+
+    def on_pre_enter(self):
+        global chosenTitles
+        self.titles = chosenTitles
+
+        self.ids.grid.clear_widgets()
+        for i in range(len(self.titles)):
+            text = self.titles[i]['title']
+            button_text = str()
+            if len(text) > 60:
+                button_text = text[:60] + "..."
+                text = button_text
+            button = TitleButton(text=text)
+
+            self.ids.grid.add_widget(button)
+
 
 class WeatherScreen(Screen):
     pass
