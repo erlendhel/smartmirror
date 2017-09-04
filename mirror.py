@@ -1,8 +1,6 @@
 import kivy
 kivy.require('1.10.0')
 from pprint import pprint
-from news import source
-from news import news
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
@@ -20,14 +18,16 @@ from kivy.core.window import Window
 Window.size = (450,700)
 
 from weather import Weather
-from news.source import Source
-from news.news import News
+from news import news
 
 from time import ctime, time
 from datetime import datetime
 
 
+
 weather = Weather()
+news = news.News()
+preferedNews = news.set_preferred_sources()
 
 
 class MainScreen(Screen):
@@ -78,14 +78,9 @@ class WeatherLabel(Label):
 class NewsButton(Button):
     pass
 
-class NewsIcon1(Button):
+class NewsIcon(Button):
     pass
 
-class NewsIcon2(Button):
-    pass
-
-class NewsIcon3(Button):
-    pass
 
 class SettingButton(Button):
     pass

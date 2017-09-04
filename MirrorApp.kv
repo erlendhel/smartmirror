@@ -78,13 +78,7 @@
                 pos:  self.parent.x + 130, self.parent.y + 45
                 width: 300
                 height: 75
-                canvas.after:
-                    Color:
-                        rgba: 0,0,1,0.5
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-                NewsIcon1:
+                NewsIcon:
                     background_normal: 'espn.png'
                     canvas.after:
                         Color:
@@ -94,7 +88,7 @@
                             pos: self.pos
                     size: self.texture_size
 
-                NewsIcon2:
+                NewsIcon:
                     canvas.after:
                         Color:
                             rgba: 0,1,0,0.5
@@ -104,7 +98,7 @@
                     background_normal: 'bbc.png'
                     size: self.texture_size
 
-                NewsIcon3:
+                NewsIcon:
                     background_normal: 'national-geographic.png'
                     canvas.after:
                         Color:
@@ -121,7 +115,7 @@
 			size_hint: 0.3, 0.3
 			font_size: 50
 			Image:
-			    source: "settings.png"
+			    source: "settings-wheel.png"
 			    allow_stretch: True
 				keep_ratio: False
 				pos: self.parent.x + 20, self.parent.y + (self.parent.height / 5.5)
