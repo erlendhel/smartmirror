@@ -25,6 +25,7 @@ from news.news import News
 
 from time import ctime, time
 from datetime import datetime
+from news import news
 
 
 weather = Weather()
