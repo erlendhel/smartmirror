@@ -22,6 +22,7 @@ from news import news
 
 from time import ctime, time
 from datetime import datetime
+from news import news
 
 
 
