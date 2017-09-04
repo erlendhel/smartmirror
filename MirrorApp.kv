@@ -23,11 +23,22 @@
 	MainScreen:
 	NewsScreen:
 	NewsSourceScreen:
+	NewsArticleScreen:
 	WeatherScreen:
 	SettingScreen:
 
 <TitleButton>:
     background_color: 0,0,0,1
+
+<BackButton>:
+    on_release:
+        app.root.current = "main"
+        app.root.transition.direction = "right"
+        app.root.transition = SwapTransition()
+    pos: 0,0
+    text: "<"
+    background_color: 0,0,0,1
+    font_size:50
 
 <MainScreen>:
 	name: "main"
@@ -166,10 +177,16 @@
     id: source
     GridLayout:
         id: grid
-        rows: len(source.titles)
+        rows: len(source.titles) + 1
 
+<NewsArticleScreen>:
+    name: "article"
+    id: article
 
-    FloatLayout:
+<SettingScreen>:
+	name: "settings"
+	DrawInput
+	FloatLayout:
 		Button:
 			on_release:
 				app.root.current = "main"
@@ -180,21 +197,6 @@
 			background_color: 0,0,0,1
 			size_hint: 0.08,0.05
 			font_size:50
-
-
-<SettingScreen>:
-	name: "settings"
-	DrawInput
-	Button:
-		on_release: 
-			app.root.current = "main"
-			app.root.transition.direction = "right"
-			app.root.transition = SwapTransition()
-		pos: 0,1
-		text: "<"
-		background_color: 0,0,0,1
-		size_hint: 0.08,0.05
-		font_size:50
 
 
 

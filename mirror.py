@@ -39,6 +39,7 @@ chosenTitles = list()
 
 
 
+
 class MainScreen(Screen):
     pass
 
@@ -117,8 +118,6 @@ class NewsIcon(Button):
         chosenTitles = articles
 
 
-
-
 class SettingButton(Button):
     pass
 
@@ -129,24 +128,38 @@ class NewsScreen(Screen):
 class TitleButton(Button):
     pass
 
+class BackButton(Button):
+    pass
+
 class NewsSourceScreen(Screen):
     titles = ListProperty()
 
     def on_pre_enter(self):
+        # Set the titles to be displayed (dependent on chosen source)
         global chosenTitles
         self.titles = chosenTitles
 
+        # Clear previous widgets in layout
         self.ids.grid.clear_widgets()
+
+        # Add one button for each title in the source
         for i in range(len(self.titles)):
             text = self.titles[i]['title']
-            button_text = str()
-            if len(text) > 60:
-                button_text = text[:60] + "..."
-                text = button_text
-            button = TitleButton(text=text)
 
+            #If the length of the title is to long, finish it off with "..."
+            if len(text) > 60:
+                text = text[:60] + "..."
+
+            # Add the button to the layout
+            button = TitleButton(text=text, id = self.titles[i]['article_id'])
             self.ids.grid.add_widget(button)
 
+        # Add a button to go back to main screen
+        self.ids.grid.add_widget(BackButton())
+
+
+class NewsArticleScreen(Screen):
+    pass
 
 class WeatherScreen(Screen):
     pass
