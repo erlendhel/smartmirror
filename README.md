@@ -259,7 +259,8 @@ If the name already exists in att_faces, the training data will be added to the 
 
 #### Use facial recognition
 ##### Code:
-<pre><code>facerec.predict_face()
+<pre><code>while True:
+    facerec.predict_face()
 </pre></code>
 
 Currently opens a frame with the webcam and predicts the name(s) of face(s) in the image. Also outputs name of prediction to console.
