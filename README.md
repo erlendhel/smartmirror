@@ -229,7 +229,13 @@ None
 # Usage/Testing of facial recognition
 
 #### Dependencies
+##### Note:
+The following imports are already imported in facerec.py, might require local setup to work
 <pre><code>import cv2, sys, numpy, os
+</pre></code>
+
+Required import in main program:
+<pre><code>from facerecognition import facerec
 </pre></code>
 
 Faces used in the facial recognition is stored in folder with path
