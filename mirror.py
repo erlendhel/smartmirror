@@ -11,7 +11,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.scatter import Scatter
 from kivy.clock import Clock
-from kivy.properties import NumericProperty, StringProperty, ListProperty
+from kivy.properties import NumericProperty, StringProperty, ListProperty, DictProperty
 from kivy.uix.image import Image
 
 from kivy.core.window import Window
@@ -22,7 +22,8 @@ from news import news
 
 from time import ctime, time
 from datetime import datetime
-from news import news
+from dateutil import parser
+
 
 
 
@@ -35,6 +36,7 @@ preferredNews = news.set_preferred_sources()
 # This list of NewsArticles holds articles based on what icon is clicked
 # The title will be displayed in the NewsSourceScreen as buttons
 chosenTitles = list()
+chosenArticle = dict()
 
 
 
@@ -126,7 +128,16 @@ class NewsScreen(Screen):
     pass
 
 class TitleButton(Button):
-    pass
+    article = DictProperty()
+
+    def __init__(self,**kwargs):
+        super(TitleButton, self).__init__(**kwargs)
+
+    def set_article(self):
+        self.article = news.get_article_by_id(self.id)
+        global chosenArticle
+        chosenArticle = self.article
+
 
 class BackButton(Button):
     pass
@@ -144,21 +155,52 @@ class NewsSourceScreen(Screen):
 
         # Add one button for each title in the source
         for i in range(len(self.titles)):
-            text = self.titles[i]['title']
+            title_text = self.titles[i]['title']
 
             #If the length of the title is to long, finish it off with "..."
-            if len(text) > 60:
-                text = text[:60] + "..."
+            if len(title_text) > 58:
+                title_text = title_text[:58] + "..."
 
-            # Add the button to the layout
-            button = TitleButton(text=text, id = self.titles[i]['article_id'])
+            # Add the button to the layout. Button has name and id taken from the article dict
+            # The id and name will be in the form of 'sourceXX' (e.g. bbc9 for the ninth article from bbc)
+            button = TitleButton(text=title_text, id = self.titles[i]['article_id'])
             self.ids.grid.add_widget(button)
 
         # Add a button to go back to main screen
         self.ids.grid.add_widget(BackButton())
 
 
+
+
 class NewsArticleScreen(Screen):
+    article = DictProperty()
+
+    def __init__(self, **kwargs):
+        super(NewsArticleScreen, self).__init__(**kwargs)
+
+    def on_pre_enter(self):
+        self.article = chosenArticle
+        self.ids.title.text = self.article['title']
+
+        # Convert the published string to simpler format
+        published = self.article['published']
+        if published is not None:
+            # Parse string using dateutil module
+            published = str(parser.parse(self.article['published']))
+
+            # Remove last 9 chars of string
+            published = published[:-9]
+
+        self.ids.published.text = "Published at: " + published
+        self.ids.description.text = self.article['description']
+
+class TitleLabel(Label):
+    pass
+
+class PublishedLabel(Label):
+    pass
+
+class DescriptionLabel(Label):
     pass
 
 class WeatherScreen(Screen):

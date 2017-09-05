@@ -29,6 +29,12 @@
 
 <TitleButton>:
     background_color: 0,0,0,1
+    on_release:
+        self.set_article()
+        app.root.transition = SlideTransition()
+		app.root.transition.direction = "left"
+        app.root.current = "article"
+
 
 <BackButton>:
     on_release:
@@ -177,11 +183,48 @@
     id: source
     GridLayout:
         id: grid
-        rows: len(source.titles) + 1
+        rows: len(source.titles) + 1 #The length of the titles from source plus one back button
 
 <NewsArticleScreen>:
     name: "article"
     id: article
+    GridLayout:
+        rows: 3
+        TitleLabel:
+            font_size: 27
+            id: title
+            text_size: self.width, None
+            halign: 'center'
+            size_hint_y: 0.4
+
+        PublishedLabel:
+            id: published
+            text: "Published at: "
+            font_size: 20
+            size_hint_y: 0.1
+
+        DescriptionLabel:
+            id: description
+            text_size: self.width, None
+            halign: 'center'
+            valign: 'top'
+            padding_y: 10
+            font_size: 22
+
+    FloatLayout:
+		Button:
+			on_release:
+			    app.root.transition = SlideTransition()
+			    app.root.transition.direction = "right"
+				app.root.current = "source"
+
+			pos: 0,1
+			text: "<"
+			background_color: 0,0,0,1
+			size_hint: 0.08,0.05
+			font_size:50
+
+
 
 <SettingScreen>:
 	name: "settings"
