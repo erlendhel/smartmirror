@@ -30,12 +30,17 @@ from dateutil import parser
 weather = Weather()
 news = news.News()
 
+
+
 # This list contains a list of three preferred(chosen) sources
 preferredNews = news.set_preferred_sources()
 
 # This list of NewsArticles holds articles based on what icon is clicked
 # The title will be displayed in the NewsSourceScreen as buttons
 chosenTitles = list()
+
+# This dict is set when a source title is clicked in the NewsSourceScreen
+# Is set in TitleButton::set_article()
 chosenArticle = dict()
 
 
@@ -103,12 +108,26 @@ class IconContainer(GridLayout):
     pass
 
 
+
+
+
+class SettingButton(Button):
+    pass
+
+
+class NewsScreen(Screen):
+    pass
+
+
+class BackButton(Button):
+    pass
+
+
 class NewsIcon(Button):
     titles = ListProperty()
 
     def __init__(self, **kwargs):
         super(NewsIcon, self).__init__(**kwargs)
-
 
     def set_titles(self):
         #Set titles based on which button was pressed, self.name will pass a source id
@@ -119,32 +138,12 @@ class NewsIcon(Button):
         global chosenTitles
         chosenTitles = articles
 
-
-class SettingButton(Button):
-    pass
-
-
-class NewsScreen(Screen):
-    pass
-
-class TitleButton(Button):
-    article = DictProperty()
-
-    def __init__(self,**kwargs):
-        super(TitleButton, self).__init__(**kwargs)
-
-    def set_article(self):
-        self.article = news.get_article_by_id(self.id)
-        global chosenArticle
-        chosenArticle = self.article
-
-
-class BackButton(Button):
-    pass
-
 class NewsSourceScreen(Screen):
     titles = ListProperty()
 
+    # Sets the titles based on what source is clicked from MainScreen
+    # Before this function runs, NewsIcon::set_titles() has appended
+    # the proper titles to the global list variable chosenTitles
     def on_pre_enter(self):
         # Set the titles to be displayed (dependent on chosen source)
         global chosenTitles
@@ -171,6 +170,17 @@ class NewsSourceScreen(Screen):
 
 
 
+class TitleButton(Button):
+    article = DictProperty()
+
+    def __init__(self,**kwargs):
+        super(TitleButton, self).__init__(**kwargs)
+
+    def set_article(self):
+        self.article = news.get_article_by_id(self.id)
+        global chosenArticle
+        chosenArticle = self.article
+
 
 class NewsArticleScreen(Screen):
     article = DictProperty()
@@ -178,6 +188,10 @@ class NewsArticleScreen(Screen):
     def __init__(self, **kwargs):
         super(NewsArticleScreen, self).__init__(**kwargs)
 
+    # Sets the different labels in the screen based on what article is chosen
+    # Before this function runs, TitleButton::set_article()
+    # has set the global variable chosenArticle to contain
+    # the correct article data based on what title is pushed
     def on_pre_enter(self):
         self.article = chosenArticle
         self.ids.title.text = self.article['title']
