@@ -24,13 +24,15 @@ from time import ctime, time
 from datetime import datetime
 from dateutil import parser
 
+# TODO: Create drawing of tree-hierarchy
 
-
-
+# TODO: program crashes if there is no internet connection
 weather = Weather()
 news = news.News()
 
 
+
+# TODO: Wrap these global variables into a class?
 
 # This list contains a list of three preferred(chosen) sources
 preferredNews = news.set_preferred_sources()
