@@ -73,7 +73,7 @@ class Weather:
         return self.__forecast_weeek_dict
 
 
-    def getDayliyForecastJSON(self):
+    def getDailyForecastJSON(self):
         return self.__forecast_day_dict
 
 
