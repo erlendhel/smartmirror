@@ -6,11 +6,9 @@ from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.graphics import Line
-from kivy.lang import Builder
+
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.scatter import Scatter
 from kivy.clock import Clock
 from kivy.properties import NumericProperty, StringProperty, ListProperty, DictProperty
 from kivy.uix.image import Image
@@ -52,6 +50,9 @@ chosenArticle = dict()
 class MainScreen(Screen):
     pass
 
+class NavigationGrid(GridLayout):
+    pass
+
 class ClockLabel(Label):
     clock = StringProperty()
 
@@ -69,11 +70,11 @@ class DateLabel(Label):
 
     def __init__(self,**kwargs):
         super(DateLabel, self).__init__(**kwargs)
-        self.date = datetime.fromtimestamp(time()).strftime("%d %b %Y")
-        Clock.schedule_interval(self.update_date,1) # Check to see if new date every 1 second, if so, update it
+        self.date = datetime.fromtimestamp(time()).strftime("%B %d")
+        Clock.schedule_interval(self.update_date, 1) # Check to see if new date every 1 second, if so, update it
 
     def update_date(self,*args):
-        newDate = datetime.fromtimestamp(time()).strftime("%d %b %Y")
+        newDate = datetime.fromtimestamp(time()).strftime("%B %d")
         if  self.date !=  newDate:
             self.date = newDate
             self.text = newDate
@@ -149,6 +150,7 @@ class NewsSourceScreen(Screen):
 
         # Clear previous widgets in layout
         self.ids.grid.clear_widgets()
+        self.ids.grid.add_widget(Image(source = "icons/news/" + self.titles[0]['article_id'][:-1] + ".png")) # Easy hack to refer to source name
 
         # Add one button for each title in the source
         for i in range(len(self.titles)):
@@ -202,6 +204,8 @@ class NewsArticleScreen(Screen):
 
             # Remove last 9 chars of string
             published = published[:-9]
+        else:
+           published = "N/A"
 
         self.ids.published.text = "Published at: " + published
         self.ids.description.text = self.article['description']
@@ -260,6 +264,8 @@ class DayWeatherLayout(GridLayout):
 
 class WeekWeatherLayout(GridLayout):
     week_forecast = ListProperty()
+
+    # TODO: How often should a callback update the weekly forecast?
 
     def __init__(self,**kwargs):
         super(WeekWeatherLayout, self).__init__(**kwargs)

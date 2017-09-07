@@ -50,19 +50,61 @@
 	name: "main"
 	GridLayout:
 		spacing: 0,0
-		rows:5
+		rows:7
 		pos: self.parent.pos
 		size: self.parent.size
-		ClockLabel:
-			name: "clock"
-			text: self.clock
-			size_hint: 0.2,0.2
-			font_size: 100	
-		DateLabel:
+		NavigationGrid:
+		    padding: 30,5
+		    cols: 4
+		    size_hint_y: 0.2
+            Image:
+                source: "icons/navigation/gps.png"
+                size_hint: 0.3, 0.3
+                #canvas.after:
+                #    Color:
+                #        rgba: 0,1,0,0.5
+                #    Rectangle:
+                #        size: self.size
+                #        pos: self.pos
+            Label:
+                text: "10 minutes to Krona"
+                font_size: 20
+                font_name: "fonts/Hattori_Hanzo.otf"
+                #canvas.after:
+                #    Color:
+                #        rgba: 1,0,0,0.5
+                #    Rectangle:
+                #        size: self.size
+                #        pos: self.pos
+            Image:
+                source: "icons/navigation/car.png"
+                size_hint: 0.3, 0.3
+                #canvas.after:
+                #    Color:
+                #        rgba: 0,0,1,0.5
+                #    Rectangle:
+                #        size: self.size
+                #        pos: self.pos
+        DateLabel:
+
 			name: "date"
 			text: self.date
 			size_hint: 0.1, 0.1
 			font_size: 25
+			font_name: "fonts/Hattori_Hanzo.otf"
+			#canvas.after:
+            #    Color:
+            #        rgba: 0,1,0,0.5
+            #    Rectangle:
+            #        size: self.size
+            #        pos: self.pos
+		ClockLabel:
+			name: "clock"
+			text: self.clock
+			size_hint: 0.2,0.2
+			font_size: 90
+			font_name: "fonts/Hattori_Hanzo.otf"
+
 		WeatherButton:
 			on_release: 
 				app.root.current = "weather"
@@ -104,7 +146,7 @@
                 NewsIcon:
                     name: str(news_button.preferredNewsIDs[0])
                     id: news_button.preferredNewsIDs[0]
-                    background_normal: str(news_button.preferredNewsIDs[0]) + ".png"
+                    background_normal: "icons/news/" + self.name + ".png"
                     on_release:
                         self.set_titles()
                         app.root.transition = SlideTransition()
@@ -115,7 +157,7 @@
                 NewsIcon:
                     name: str(news_button.preferredNewsIDs[1])
                     id: news_button.preferredNewsIDs[1]
-                    background_normal: str(news_button.preferredNewsIDs[1]) + ".png"
+                    background_normal: "icons/news/" + self.name + ".png"
                     on_release:
                         self.set_titles()
                         app.root.transition = SlideTransition()
@@ -126,7 +168,7 @@
                 NewsIcon:
                     name: str(news_button.preferredNewsIDs[2])
                     id: news_button.preferredNewsIDs[2]
-                    background_normal: str(news_button.preferredNewsIDs[2]) + ".png"
+                    background_normal: "icons/news/" + self.name + ".png"
                     on_release:
                         self.set_titles()
                         app.root.transition = SlideTransition()
@@ -142,7 +184,7 @@
 			size_hint: 0.3, 0.3
 			font_size: 50
 			Image:
-			    source: "settings-wheel.png"
+			    source: "icons/cogwheel.png"
 			    allow_stretch: True
 				keep_ratio: False
 				pos: self.parent.x + 20, self.parent.y + (self.parent.height / 5.5)
@@ -221,7 +263,8 @@
     id: source
     GridLayout:
         id: grid
-        rows: len(source.titles) + 1 #The length of the titles from source plus one back button
+        rows: len(source.titles) + 2 # Titles plus back button and logo
+        padding: 10
 
 <NewsArticleScreen>:
     name: "article"
