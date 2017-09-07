@@ -101,8 +101,8 @@ class Weather:
 
         # put data into WeatherData object
         main_dict = self.__current_dict['main']
-        self.__weather_data.sunset = ctime(self.__current_dict['sys']['sunset'])
-        self.__weather_data.sunrise = ctime(self.__current_dict['sys']['sunrise'])
+        self.__weather_data.sunset = ctime(self.__current_dict['sys']['sunset'])[10:16] # [10:16] gets only the time, i.e. 20:00
+        self.__weather_data.sunrise = ctime(self.__current_dict['sys']['sunrise'])[10:16] # [10:16] gets only the time, i.e. 20:00
         self.__weather_data.temperature = main_dict['temp'] - (272.15)
         self.__weather_data.humidity = main_dict['humidity']
         self.__weather_data.weather_description = self.__current_dict['weather'][0]['description']
@@ -116,7 +116,7 @@ class Weather:
         # put data into list of WeekForecastWeatherData objects
         for day in self.__forecast_week_dict['list']:
             forecastData = WeekForecastWeatherData()
-            forecastData.date = datetime.fromtimestamp(day['dt']).strftime("%m%d")
+            forecastData.date = datetime.fromtimestamp(day['dt']).strftime("%b %d")
             forecastData.temperature = int(day['temp']['day'] - 272) #Kelvin to Celsius
             forecastData.description = self.__fillDescriptions(day)
             self.__forecast_7days.append(forecastData)

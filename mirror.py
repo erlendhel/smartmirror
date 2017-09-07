@@ -8,6 +8,7 @@ from kivy.uix.button import Button
 from kivy.graphics import Line
 from kivy.lang import Builder
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.scatter import Scatter
 from kivy.clock import Clock
@@ -29,7 +30,6 @@ from dateutil import parser
 # TODO: program crashes if there is no internet connection
 weather = Weather()
 news = news.News()
-
 
 
 # TODO: Wrap these global variables into a class?
@@ -83,7 +83,7 @@ class WeatherButton(Button):
 
     def __init__(self, **kwargs):
         super(WeatherButton, self).__init__(**kwargs)
-        self.temperature = str(int(weather.getTemperature())) + "°"  # Convert to int before string to cut out decimal points
+        self.temperature = str(int(weather.getWeather().temperature)) + "°"  # Convert to int before string to cut out decimal points
         Clock.schedule_interval(self.update_temperature, 600)  # Update weather data every 10 minutes
 
     def update_temperature(self):
@@ -108,10 +108,6 @@ class NewsButton(Button):
 
 class IconContainer(GridLayout):
     pass
-
-
-
-
 
 class SettingButton(Button):
     pass
@@ -222,19 +218,66 @@ class DescriptionLabel(Label):
 class WeatherScreen(Screen):
     pass
 
+class PresentWeatherLayout(GridLayout):
+    temperature = StringProperty()
+    humidity = StringProperty()
+    sunrise = StringProperty()
+    sunset = StringProperty()
+
+    def __init__(self, **kwargs):
+        super(PresentWeatherLayout, self).__init__(**kwargs)
+        self.set_data()
+        Clock.schedule_interval(self.update_current_weather, 600)
+
+    def update_current_weather(self):
+        weather.updateCurrentData()
+        self.set_data()
+
+    def set_data(self):
+        self.temperature = str(int(weather.getWeather().temperature)) + "°"
+        self.humidity = str(weather.getWeather().humidity) + "%"
+        self.sunset = weather.getWeather().sunset
+        self.sunrise = weather.getWeather().sunrise
+
+
+class DayWeatherLayout(GridLayout):
+    day_forecast = ListProperty()
+
+    # TODO: How often should a callback update the daily forecast?
+
+    def __init__(self, **kwargs):
+        super(DayWeatherLayout, self).__init__(**kwargs)
+        self.day_forecast = weather.getDailyForecast()
+
+        for x in range(0,7):
+            layout = GridLayout(rows = 3)
+            layout.add_widget(Image(source = "sun.png"))
+            layout.add_widget(Label(text = str(self.day_forecast[x].temperature)+"°"))
+            layout.add_widget(Label(text = self.day_forecast[x].time))
+            self.add_widget(layout)
+
+
+
+class WeekWeatherLayout(GridLayout):
+    week_forecast = ListProperty()
+
+    def __init__(self,**kwargs):
+        super(WeekWeatherLayout, self).__init__(**kwargs)
+        self.week_forecast = weather.getWeeklyForecast()
+
+        for x in range(0,7):
+            layout = GridLayout(rows = 3)
+            layout.add_widget(Image(source = "sun.png"))
+            layout.add_widget(Label(text = str(self.week_forecast[x].temperature)+"°"))
+            layout.add_widget(Label(text = self.week_forecast[x].date))
+            self.add_widget(layout)
+
+
 class SettingScreen(Screen):
     pass
 
 class ScreenManagement(ScreenManager):
     pass
-
-class DrawInput(Widget):
-    def on_touch_down(self, touch):
-        with self.canvas:
-            touch.ud["line"] = Line(points=(touch.x, touch.y))
-
-    def on_touch_move(self, touch):
-        touch.ud["line"].points += (touch.x, touch.y)
 
 
 class MirrorApp(App):

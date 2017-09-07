@@ -150,7 +150,45 @@
 
 <WeatherScreen>:
 	name: "weather"
-	DrawInput
+    GridLayout:
+        rows: 3
+        PresentWeatherLayout:
+            padding: 10
+            id: present_weather
+            cols: 2
+            GridLayout:
+                cols: 2
+                Image:
+                    source: "sun.png"
+                Label:
+                    text: root.ids.present_weather.temperature
+                    font_size: 50
+                    id: current_temperature
+            GridLayout:
+                rows: 3
+                Label:
+                    text: "Humidity: " + root.ids.present_weather.humidity
+                    font_size: 22
+                Label:
+                    text: "Sunrise: " + root.ids.present_weather.sunrise
+                    font_size: 22
+                Label:
+                    text: "Sunset: " + root.ids.present_weather.sunset
+                    font_size: 22
+
+        # The seven columns are made in a loop in python file
+        DayWeatherLayout:
+            padding: 10
+            id: day_weather
+            cols:7
+
+        # The seven columns are made in a loop in python file
+        WeekWeatherLayout:
+            padding: 10
+            id: week_weather
+            cols:7
+
+
 	Button:
 		on_release: 
 			app.root.current = "main"
@@ -228,7 +266,6 @@
 
 <SettingScreen>:
 	name: "settings"
-	DrawInput
 	FloatLayout:
 		Button:
 			on_release:
