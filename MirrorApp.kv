@@ -28,6 +28,8 @@
 
 <TitleButton>:
     background_color: 0,0,0,1
+    font_size: 19
+
     on_release:
         self.set_article()
         app.root.transition = SlideTransition()
@@ -180,7 +182,7 @@
             GridLayout:
                 cols: 2
                 Image:
-                    source: "sun.png"
+                    source: present_weather.image_source
                 Label:
                     text: root.ids.present_weather.temperature
                     font_size: 50
@@ -203,13 +205,13 @@
 
         # The seven columns are made in a loop in python file
         DayWeatherLayout:
-            padding: 10
+            padding: 10,40
             id: day_weather
             cols:7
 
         # The seven columns are made in a loop in python file
         WeekWeatherLayout:
-            padding: 10
+            padding: 10,40
             id: week_weather
             cols:7
 

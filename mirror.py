@@ -196,9 +196,8 @@ class NewsSourceScreen(Screen):
             title_text = self.titles[i]['title']
 
             #If the length of the title is to long, finish it off with "..."
-            if len(title_text) > 58:
-                title_text = title_text[:58] + "..."
-
+            if len(title_text) > 55:
+                title_text = title_text[:55] + "..."
             # Add the button to the layout. Button has name and id taken from the article dict
             # The id and name will be in the form of 'sourceXX' (e.g. bbc9 for the ninth article from bbc)
             button = TitleButton(text=title_text, id = self.titles[i]['article_id'])
@@ -266,6 +265,8 @@ class PresentWeatherLayout(GridLayout):
     humidity = StringProperty()
     sunrise = StringProperty()
     sunset = StringProperty()
+    description = StringProperty()
+    image_source = StringProperty()
 
     def __init__(self, **kwargs):
         super(PresentWeatherLayout, self).__init__(**kwargs)
@@ -281,10 +282,32 @@ class PresentWeatherLayout(GridLayout):
         self.humidity = str(weather.getWeather().humidity) + "%"
         self.sunset = weather.getWeather().sunset
         self.sunrise = weather.getWeather().sunrise
+        self.description = weather.getWeather().weather_description
+        self.set_weather_image()
+
+    def set_weather_image(self):
+        length = len(self.description)
+        # Because of the many different types of weather descriptions
+        # The program will only look for the type of weather
+        # i.e. it will not differentiate between 'heavy intensity rain' and 'shower rain'
+        if self.description.find('rain', 0, length) is not -1:
+            self.image_source = "icons/weather/rainy.png"
+        elif self.description.find('clear sky', 0, length) is not -1:
+            self.image_source = "icons/weather/sunny.png"
+        elif self.description.find('clouds', 0, length) is not -1:
+            self.image_source = "icons/weather/partlysun.png"
+        elif self.description.find('snow', 0, length) is not -1:
+            self.image_source = "icons/weather/snowy.png"
+        elif self.description.find('thunder', 0, length) is not -1:
+            self.image_source = "icons/weather/thunder.png"
+        else:
+            self.image_source = "icons/weather/cloudy.png"
+
 
 
 class DayWeatherLayout(GridLayout):
     day_forecast = ListProperty()
+
 
     # TODO: How often should a callback update the daily forecast?
 
@@ -294,11 +317,32 @@ class DayWeatherLayout(GridLayout):
 
         for x in range(0,7):
             layout = GridLayout(rows = 3)
-            layout.add_widget(Image(source = "sun.png", allow_stretch = True))
+            source = self.set_weather_image(self.day_forecast[x].description)
+            image = Image(source = source, allow_stretch = True)
+            layout.add_widget(image)
             layout.add_widget(Label(text = str(self.day_forecast[x].temperature)+"°"))
             layout.add_widget(Label(text = self.day_forecast[x].time))
             self.add_widget(layout)
 
+    def set_weather_image(self,description):
+        length = len(description)
+        # Because of the many different types of weather descriptions
+        # The program will only look for the type of weather
+        # i.e. it will not differentiate between 'heavy intensity rain' and 'shower rain'
+        if description.find('rain', 0, length) is not -1:
+            image_source = "icons/weather/rainy.png"
+        elif description.find('clear sky', 0, length) is not -1:
+            image_source = "icons/weather/sunny.png"
+        elif description.find('clouds', 0, length) is not -1:
+            image_source = "icons/weather/partlysun.png"
+        elif description.find('snow', 0, length) is not -1:
+            image_source = "icons/weather/snowy.png"
+        elif description.find('thunder', 0, length) is not -1:
+            image_source = "icons/weather/thunder.png"
+        else:
+            image_source = "icons/weather/cloudy.png"
+
+        return image_source
 
 
 class WeekWeatherLayout(GridLayout):
@@ -312,11 +356,32 @@ class WeekWeatherLayout(GridLayout):
 
         for x in range(0,7):
             layout = GridLayout(rows = 3)
-            layout.add_widget(Image(source = "sun.png"))
+            source = self.set_weather_image(self.week_forecast[x].description)
+            image = Image(source=source, allow_stretch=True)
+            layout.add_widget(image)
             layout.add_widget(Label(text = str(self.week_forecast[x].temperature)+"°"))
             layout.add_widget(Label(text = self.week_forecast[x].date))
             self.add_widget(layout)
 
+    def set_weather_image(self,description):
+        length = len(description)
+        # Because of the many different types of weather descriptions
+        # The program will only look for the type of weather
+        # i.e. it will not differentiate between 'heavy intensity rain' and 'shower rain'
+        if description.find('rain', 0, length) is not -1:
+            image_source = "icons/weather/rainy.png"
+        elif description.find('clear sky', 0, length) is not -1:
+            image_source = "icons/weather/sunny.png"
+        elif description.find('clouds', 0, length) is not -1:
+            image_source = "icons/weather/partlysun.png"
+        elif description.find('snow', 0, length) is not -1:
+            image_source = "icons/weather/snowy.png"
+        elif description.find('thunder', 0, length) is not -1:
+            image_source = "icons/weather/thunder.png"
+        else:
+            image_source = "icons/weather/cloudy.png"
+
+        return image_source
 
 class SettingScreen(Screen):
     pass
