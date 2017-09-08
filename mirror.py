@@ -8,6 +8,7 @@ from kivy.uix.button import Button
 from kivy.graphics import Line
 
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.clock import Clock
 from kivy.properties import NumericProperty, StringProperty, ListProperty, DictProperty
@@ -81,16 +82,43 @@ class DateLabel(Label):
 
 class WeatherButton(Button):
     temperature = StringProperty()
+    description = StringProperty()
+    source = StringProperty()
 
     def __init__(self, **kwargs):
         super(WeatherButton, self).__init__(**kwargs)
         self.temperature = str(int(weather.getWeather().temperature)) + "°"  # Convert to int before string to cut out decimal points
+        self.description = weather.getWeather().weather_description
+        self.set_weather_image()
         Clock.schedule_interval(self.update_temperature, 600)  # Update weather data every 10 minutes
 
-    def update_temperature(self):
+
+    def update_temperature(self, *args):
         weather.updateCurrentData()
-        temperature = str(int(weather.getTemperature())) + "°"  # Convert to int before string to cut out decimal points
-        self.text = temperature
+        self.temperature = str(int(weather.getWeather().temperature)) + "°"  # Convert to int before string to cut out decimal points
+        self.description = weather.getWeather().weather_description
+        self.set_weather_image()
+
+    def set_weather_image(self):
+        length = len(self.description)
+        # Because of the many different types of weather descriptions
+        # The program will only look for the type of weather
+        # i.e. it will not differentiate between 'heavy intensity rain' and 'shower rain'
+        if self.description.find('rain', 0, length) is not -1:
+            self.source = "icons/weather/rainy.png"
+        elif self.description.find('clear sky', 0, length) is not -1:
+            self.source = "icons/weather/sunny.png"
+        elif self.description.find('clouds', 0, length) is not -1:
+            self.source = "icons/weather/partlysun.png"
+        elif self.description.find('snow', 0, length) is not -1:
+            self.source = "icons/weather/snowy.png"
+        elif self.description.find('thunder', 0, length) is not -1:
+            self.source = "icons/weather/thunder.png"
+        else:
+            self.source = "icons/weather/cloudy.png"
+
+class WeatherGrid(GridLayout):
+    pass
 
 class WeatherLabel(Label):
     pass
@@ -107,7 +135,18 @@ class NewsButton(Button):
         for x in range(len(preferredNews)):
             self.preferredNewsIDs.append(preferredNews[x].source['source_id'])
 
-class IconContainer(GridLayout):
+class SourceLayout(GridLayout):
+    preferredNewsIDs = ListProperty()
+
+    def __init__(self, **kwargs):
+        super(SourceLayout, self).__init__(**kwargs)
+
+        # Get the ids of the chosen preferred sources
+        # These ids will be used to identify the different icons on the main screen
+        for x in range(len(preferredNews)):
+            self.preferredNewsIDs.append(preferredNews[x].source['source_id'])
+
+class NewModule(Button):
     pass
 
 class SettingButton(Button):
@@ -255,7 +294,7 @@ class DayWeatherLayout(GridLayout):
 
         for x in range(0,7):
             layout = GridLayout(rows = 3)
-            layout.add_widget(Image(source = "sun.png"))
+            layout.add_widget(Image(source = "sun.png", allow_stretch = True))
             layout.add_widget(Label(text = str(self.day_forecast[x].temperature)+"°"))
             layout.add_widget(Label(text = self.day_forecast[x].time))
             self.add_widget(layout)
