@@ -2,7 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3830561c-b69c-4f8d-bc5c-d35dd41472a9" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/img/bbc.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/img/espn.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/img/national-geographic.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/img/settings-wheel.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/img/settings.png" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/news.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/sun.png" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mirror.py" afterPath="$PROJECT_DIR$/mirror.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -27,11 +34,11 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="mirror.py" pinned="false" current-in-tab="false">
+          <file leaf-file-name="mirror.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/mirror.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="307">
-                  <caret line="146" column="41" lean-forward="false" selection-start-line="146" selection-start-column="41" selection-end-line="146" selection-end-column="41" />
+                <state relative-caret-position="-3639">
+                  <caret line="169" column="25" lean-forward="true" selection-start-line="169" selection-start-column="25" selection-end-line="169" selection-end-column="25" />
                   <folding />
                 </state>
               </provider>
@@ -49,7 +56,7 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="travel.py" pinned="false" current-in-tab="true">
+          <file leaf-file-name="travel.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/gmaps/travel.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="289">
@@ -264,6 +271,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.03953148" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
@@ -599,16 +607,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
           <caret line="39" column="17" lean-forward="false" selection-start-line="39" selection-start-column="17" selection-end-line="39" selection-end-column="17" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mirror.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="307">
-          <caret line="146" column="41" lean-forward="false" selection-start-line="146" selection-start-column="41" selection-end-line="146" selection-end-column="41" />
+        <state relative-caret-position="-3639">
+          <caret line="169" column="25" lean-forward="true" selection-start-line="169" selection-start-column="25" selection-end-line="169" selection-end-column="25" />
           <folding />
         </state>
       </provider>
