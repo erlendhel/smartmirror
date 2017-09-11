@@ -1,6 +1,10 @@
+from time import ctime, time
+from datetime import datetime
+from dateutil import parser
+from pprint import pprint
+
 import kivy
 kivy.require('1.10.0')
-
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
@@ -15,18 +19,14 @@ from kivy.core.window import Window
 
 from weather import Weather
 from news import news
-
-from time import ctime, time
-from datetime import datetime
-from dateutil import parser
-from pprint import pprint
+from gmaps import travel
 
 # TODO: Create drawing of tree-hierarchy
 
 # TODO: program crashes if there is no internet connection
 weather = Weather()
 news = news.News()
-
+travel = travel.Travel()
 
 # TODO: Wrap these global variables into a class?
 
@@ -42,14 +42,25 @@ chosenTitles = list()
 chosenArticle = dict()
 
 
-
-
-
 class MainScreen(Screen):
     pass
 
+
 class NavigationGrid(GridLayout):
     pass
+
+class NavLabel(Label):
+    travel_dict = DictProperty()
+    travel_mode = StringProperty()
+
+    def __init__(self, **kwargs):
+        super(NavLabel, self).__init__(**kwargs)
+        self.travel_dict = travel.get_travel_time("Krona, Kongsberg", "driving")
+        travel_time = self.travel_dict['duration']
+        self.travel_mode = self.travel_dict['travel_mode']
+        destination = self.travel_dict['destination_name'].split(' ', 1)[0] # Get first word of string, quick fix. TODO: edit
+        self.text = travel_time + " to " + destination
+
 
 class ClockLabel(Label):
     clock = StringProperty()
@@ -89,7 +100,6 @@ class WeatherButton(Button):
         self.set_weather_image()
         Clock.schedule_interval(self.update_temperature, 600)  # Update weather data every 10 minutes
 
-
     def update_temperature(self, *args):
         weather.updateCurrentData()
         self.temperature = str(int(weather.getWeather().temperature)) + "°"  # Convert to int before string to cut out decimal points
@@ -126,7 +136,7 @@ class NewsButton(Button):
     preferredNewsIDs = ListProperty()
 
 
-    def __init__(self,**kwargs):
+    def __init__(self, **kwargs):
         super(NewsButton, self).__init__(**kwargs)
 
         # Get the ids of the chosen preferred sources
