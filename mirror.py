@@ -1,7 +1,6 @@
 from time import ctime, time
 from datetime import datetime
 from dateutil import parser
-from pprint import pprint
 
 import kivy
 kivy.require('1.10.0')
@@ -41,6 +40,30 @@ chosenTitles = list()
 # Is set in TitleButton::set_article()
 chosenArticle = dict()
 
+# Used in several classes used to set weather image paths
+def set_weather_image(description):
+    length = len(description)
+
+    # Because of the many different types of weather descriptions
+    # The program will only look for the type of weather
+    # i.e. it will not differentiate between 'heavy intensity rain' and 'shower rain'
+    if description.find('rain', 0, length) is not -1:
+        image_source = "icons/weather/rainy.png"
+    elif description.find('clear sky', 0, length) is not -1:
+        image_source = "icons/weather/sunny.png"
+    elif description.find('few clouds', 0, length) is not -1:
+        image_source = "icons/weather/partlysun.png"
+    elif description.find('clouds') is not -1 and description.find('few clouds') is -1:
+        image_source = "icons/weather/cloudy.png"
+    elif description.find('snow', 0, length) is not -1:
+        image_source = "icons/weather/snowy.png"
+    elif description.find('thunder', 0, length) is not -1:
+        image_source = "icons/weather/thunder.png"
+    else:
+        image_source = "icons/weather/cloudy.png"
+
+    return image_source
+
 
 class MainScreen(Screen):
     pass
@@ -49,44 +72,56 @@ class MainScreen(Screen):
 class NavigationGrid(GridLayout):
     pass
 
+
 class NavLabel(Label):
     travel_dict = DictProperty()
     travel_mode = StringProperty()
 
     def __init__(self, **kwargs):
         super(NavLabel, self).__init__(**kwargs)
+
+        # Get the dict from the Travel interface, and set relevant variables
         self.travel_dict = travel.get_travel_time("Krona, Kongsberg", "driving")
-        travel_time = self.travel_dict['duration']
         self.travel_mode = self.travel_dict['travel_mode']
-        destination = self.travel_dict['destination_name'].split(' ', 1)[0] # Get first word of string, quick fix. TODO: edit
-        self.text = travel_time + " to " + destination
+
+        # Get first word of string, quick fix of long destination name. TODO: edit
+        destination = self.travel_dict['destination_name'].split(' ', 1)[0]
+
+        # Set the displayed text
+        self.text = self.travel_dict['duration'] + " to " + destination
 
 
 class ClockLabel(Label):
     clock = StringProperty()
 
-    def __init__(self,**kwargs):
+    def __init__(self, **kwargs):
         super(ClockLabel, self).__init__(**kwargs)
         self.clock = datetime.fromtimestamp(time()).strftime("%H:%M")
-        Clock.schedule_interval(self.update_clock,1)
+        Clock.schedule_interval(self.update_clock, 1)
 
     def update_clock(self, *args):
         self.clock = datetime.fromtimestamp(time()).strftime("%H:%M")
         self.text = self.clock
 
+
 class DateLabel(Label):
     date = StringProperty()
 
-    def __init__(self,**kwargs):
+    def __init__(self, **kwargs):
         super(DateLabel, self).__init__(**kwargs)
         self.date = datetime.fromtimestamp(time()).strftime("%B %d")
-        Clock.schedule_interval(self.update_date, 1) # Check to see if new date every 1 second, if so, update it
 
-    def update_date(self,*args):
-        newDate = datetime.fromtimestamp(time()).strftime("%B %d")
-        if  self.date !=  newDate:
-            self.date = newDate
-            self.text = newDate
+        # Update date label every second
+        Clock.schedule_interval(self.update_date, 1)
+
+    def update_date(self, *args):
+        new_date = datetime.fromtimestamp(time()).strftime("%B %d")
+
+        # Update date if it has changed since last call to the function
+        if self.date != new_date:
+            self.date = new_date
+            self.text = new_date
+
 
 class WeatherButton(Button):
     temperature = StringProperty()
@@ -95,46 +130,34 @@ class WeatherButton(Button):
 
     def __init__(self, **kwargs):
         super(WeatherButton, self).__init__(**kwargs)
-        self.temperature = str(int(weather.getWeather().temperature)) + "°"  # Convert to int before string to cut out decimal points
+
+        # Convert to int before string to cut out decimal points
+        self.temperature = str(int(weather.getWeather().temperature)) + "°"
         self.description = weather.getWeather().weather_description
-        self.set_weather_image()
-        Clock.schedule_interval(self.update_temperature, 600)  # Update weather data every 10 minutes
+        self.source = set_weather_image(self.description)
+
+        # Set a callback timer to send in a new requeset to the weather API every 10 minutes
+        Clock.schedule_interval(self.update_temperature, 600)
 
     def update_temperature(self, *args):
         weather.updateCurrentData()
-        self.temperature = str(int(weather.getWeather().temperature)) + "°"  # Convert to int before string to cut out decimal points
-        self.description = weather.getWeather().weather_description
-        self.set_weather_image()
 
-    def set_weather_image(self):
-        length = len(self.description)
-        # Because of the many different types of weather descriptions
-        # The program will only look for the type of weather
-        # i.e. it will not differentiate between 'heavy intensity rain' and 'shower rain'
-        if self.description.find('rain', 0, length) is not -1:
-            self.source = "icons/weather/rainy.png"
-        elif self.description.find('clear sky', 0, length) is not -1:
-            self.source = "icons/weather/sunny.png"
-        elif self.description.find('few clouds', 0, length) is not -1:
-            self.source = "icons/weather/partlysun.png"
-        elif self.description.find('clouds') is not -1 and self.description.find('few clouds') is -1:
-            self.source = "icons/weather/cloudy.png"
-        elif self.description.find('snow', 0, length) is not -1:
-            self.source = "icons/weather/snowy.png"
-        elif self.description.find('thunder', 0, length) is not -1:
-            self.source = "icons/weather/thunder.png"
-        else:
-            self.source = "icons/weather/cloudy.png"
+        # Convert to int before string to cut out decimal points
+        self.temperature = str(int(weather.getWeather().temperature)) + "°"
+        self.description = weather.getWeather().weather_description
+        self.source = set_weather_image(self.description)
+
 
 class WeatherGrid(GridLayout):
     pass
 
+
 class WeatherLabel(Label):
     pass
 
+
 class NewsButton(Button):
     preferredNewsIDs = ListProperty()
-
 
     def __init__(self, **kwargs):
         super(NewsButton, self).__init__(**kwargs)
@@ -143,6 +166,7 @@ class NewsButton(Button):
         # These ids will be used to identify the different icons on the main screen
         for x in range(len(preferredNews)):
             self.preferredNewsIDs.append(preferredNews[x].source['source_id'])
+
 
 class SourceLayout(GridLayout):
     preferredNewsIDs = ListProperty()
@@ -158,6 +182,7 @@ class SourceLayout(GridLayout):
 
 class NewModule(Button):
     pass
+
 
 class SettingButton(Button):
     pass
@@ -178,13 +203,14 @@ class NewsIcon(Button):
         super(NewsIcon, self).__init__(**kwargs)
 
     def set_titles(self):
-        #Set titles based on which button was pressed, self.name will pass a source id
+        # Set titles based on which button was pressed, self.name will pass a source id
         articles = news.get_articles_by_source(preferredNews, self.name)
         self.titles = articles
 
         # Set the global variable to contain the articles based on what icon was clicked
         global chosenTitles
         chosenTitles = articles
+
 
 class NewsSourceScreen(Screen):
     titles = ListProperty()
@@ -199,29 +225,29 @@ class NewsSourceScreen(Screen):
 
         # Clear previous widgets in layout
         self.ids.grid.clear_widgets()
-        self.ids.grid.add_widget(Image(source = "icons/news/" + self.titles[0]['article_id'][:-1] + ".png")) # Easy hack to refer to source name
+        self.ids.grid.add_widget(Image(source="icons/news/" + self.titles[0]['article_id'][:-1] + ".png"))
 
         # Add one button for each title in the source
         for i in range(len(self.titles)):
             title_text = self.titles[i]['title']
 
-            #If the length of the title is to long, finish it off with "..."
+            # If the length of the title is to long, finish it off with "..."
             if len(title_text) > 55:
                 title_text = title_text[:55] + "..."
+
             # Add the button to the layout. Button has name and id taken from the article dict
             # The id and name will be in the form of 'sourceXX' (e.g. bbc9 for the ninth article from bbc)
-            button = TitleButton(text=title_text, id = self.titles[i]['article_id'])
+            button = TitleButton(text=title_text, id=self.titles[i]['article_id'])
             self.ids.grid.add_widget(button)
 
         # Add a button to go back to main screen
         self.ids.grid.add_widget(BackButton())
 
 
-
 class TitleButton(Button):
     article = DictProperty()
 
-    def __init__(self,**kwargs):
+    def __init__(self, **kwargs):
         super(TitleButton, self).__init__(**kwargs)
 
     def set_article(self):
@@ -253,22 +279,27 @@ class NewsArticleScreen(Screen):
             # Remove last 9 chars of string
             published = published[:-9]
         else:
-           published = "N/A"
+            published = "N/A"
 
         self.ids.published.text = "Published at: " + published
         self.ids.description.text = self.article['description']
 
+
 class TitleLabel(Label):
     pass
+
 
 class PublishedLabel(Label):
     pass
 
+
 class DescriptionLabel(Label):
     pass
 
+
 class WeatherScreen(Screen):
     pass
+
 
 class PresentWeatherLayout(GridLayout):
     temperature = StringProperty()
@@ -293,120 +324,55 @@ class PresentWeatherLayout(GridLayout):
         self.sunset = weather.getWeather().sunset
         self.sunrise = weather.getWeather().sunrise
         self.description = weather.getWeather().weather_description
-        self.set_weather_image()
-
-    def set_weather_image(self):
-        length = len(self.description)
-        # Because of the many different types of weather descriptions
-        # The program will only look for the type of weather
-        # i.e. it will not differentiate between 'heavy intensity rain' and 'shower rain'
-        if self.description.find('rain', 0, length) is not -1:
-            self.image_source = "icons/weather/rainy.png"
-        elif self.description.find('clear sky', 0, length) is not -1:
-            self.image_source = "icons/weather/sunny.png"
-        elif self.description.find('few clouds', 0, length) is not -1:
-            self.image_source = "icons/weather/partlysun.png"
-        elif self.description.find('clouds') is not -1 and self.description.find('few clouds') is -1:
-            self.image_source = "icons/weather/cloudy.png"
-        elif self.description.find('snow', 0, length) is not -1:
-            self.image_source = "icons/weather/snowy.png"
-        elif self.description.find('thunder', 0, length) is not -1:
-            self.image_source = "icons/weather/thunder.png"
-        else:
-            self.image_source = "icons/weather/cloudy.png"
+        self.image_source = set_weather_image(self.description)
 
 
-
+# TODO: How often should a callback update the daily forecast?
 class DayWeatherLayout(GridLayout):
     day_forecast = ListProperty()
-
-
-    # TODO: How often should a callback update the daily forecast?
 
     def __init__(self, **kwargs):
         super(DayWeatherLayout, self).__init__(**kwargs)
         self.day_forecast = weather.getDailyForecast()
 
-        for x in range(0,7):
-            layout = GridLayout(rows = 3)
-            source = self.set_weather_image(self.day_forecast[x].description)
-            image = Image(source = source, allow_stretch = True)
+        for x in range(0, 7):
+            layout = GridLayout(rows=3)
+            source = set_weather_image(self.day_forecast[x].description)
+            image = Image(source=source, allow_stretch=True)
             layout.add_widget(image)
-            layout.add_widget(Label(text = str(self.day_forecast[x].temperature)+"°"))
-            layout.add_widget(Label(text = self.day_forecast[x].time))
+            layout.add_widget(Label(text=str(self.day_forecast[x].temperature) + "°"))
+            layout.add_widget(Label(text=self.day_forecast[x].time))
             self.add_widget(layout)
 
-    def set_weather_image(self,description):
-        length = len(description)
-        # Because of the many different types of weather descriptions
-        # The program will only look for the type of weather
-        # i.e. it will not differentiate between 'heavy intensity rain' and 'shower rain'
-        if description.find('rain', 0, length) is not -1:
-            image_source = "icons/weather/rainy.png"
-        elif description.find('clear sky', 0, length) is not -1:
-            image_source = "icons/weather/sunny.png"
-        elif description.find('few clouds', 0, length) is not -1:
-            image_source = "icons/weather/partlysun.png"
-        elif description.find('clouds') is not -1 and description.find('few clouds') is -1:
-            image_source = "icons/weather/cloudy.png"
-        elif description.find('snow', 0, length) is not -1:
-            image_source = "icons/weather/snowy.png"
-        elif description.find('thunder', 0, length) is not -1:
-            image_source = "icons/weather/thunder.png"
-        else:
-            image_source = "icons/weather/cloudy.png"
 
-        return image_source
-
-
+# TODO: How often should a callback update the weekly forecast?
 class WeekWeatherLayout(GridLayout):
     week_forecast = ListProperty()
 
-    # TODO: How often should a callback update the weekly forecast?
-
-    def __init__(self,**kwargs):
+    def __init__(self, **kwargs):
         super(WeekWeatherLayout, self).__init__(**kwargs)
         self.week_forecast = weather.getWeeklyForecast()
 
-        for x in range(0,7):
-            layout = GridLayout(rows = 3)
-            source = self.set_weather_image(self.week_forecast[x].description)
+        for x in range(0, 7):
+            layout = GridLayout(rows=3)
+            source = set_weather_image(self.week_forecast[x].description)
             image = Image(source=source, allow_stretch=True)
             layout.add_widget(image)
-            layout.add_widget(Label(text = str(self.week_forecast[x].temperature)+"°"))
-            layout.add_widget(Label(text = self.week_forecast[x].date))
+            layout.add_widget(Label(text=str(self.week_forecast[x].temperature) + "°"))
+            layout.add_widget(Label(text=self.week_forecast[x].date))
             self.add_widget(layout)
 
-    def set_weather_image(self,description):
-        length = len(description)
-        # Because of the many different types of weather descriptions
-        # The program will only look for the type of weather
-        # i.e. it will not differentiate between 'heavy intensity rain' and 'shower rain'
-        if description.find('rain', 0, length) is not -1:
-            image_source = "icons/weather/rainy.png"
-        elif description.find('clear sky', 0, length) is not -1:
-            image_source = "icons/weather/sunny.png"
-        elif description.find('few clouds', 0, length) is not -1:
-            image_source = "icons/weather/partlysun.png"
-        elif description.find('clouds') is not -1 and description.find('few clouds') is -1:
-            image_source = "icons/weather/cloudy.png"
-        elif description.find('snow', 0, length) is not -1:
-            image_source = "icons/weather/snowy.png"
-        elif description.find('thunder', 0, length) is not -1:
-            image_source = "icons/weather/thunder.png"
-        else:
-            image_source = "icons/weather/cloudy.png"
-
-        return image_source
 
 class SettingScreen(Screen):
     pass
+
 
 class ScreenManagement(ScreenManager):
     pass
 
 
 class MirrorApp(App):
+
     def build(self):
         root = ScreenManagement()
         return root
