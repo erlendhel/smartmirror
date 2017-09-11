@@ -144,7 +144,7 @@ class SourceLayout(GridLayout):
         # These ids will be used to identify the different icons on the main screen
         for x in range(len(preferredNews)):
             self.preferredNewsIDs.append(preferredNews[x].source['source_id'])
-            print(self.preferredNewsIDs[x])
+
 
 class NewModule(Button):
     pass
@@ -175,8 +175,6 @@ class NewsIcon(Button):
         # Set the global variable to contain the articles based on what icon was clicked
         global chosenTitles
         chosenTitles = articles
-
-
 
 class NewsSourceScreen(Screen):
     titles = ListProperty()
