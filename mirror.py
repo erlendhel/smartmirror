@@ -1,21 +1,17 @@
 import kivy
 kivy.require('1.10.0')
-from pprint import pprint
+
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
-from kivy.graphics import Line
-
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.clock import Clock
 from kivy.properties import NumericProperty, StringProperty, ListProperty, DictProperty
 from kivy.uix.image import Image
-
 from kivy.core.window import Window
-Window.size = (450,700)
 
 from weather import Weather
 from news import news
@@ -23,6 +19,7 @@ from news import news
 from time import ctime, time
 from datetime import datetime
 from dateutil import parser
+from pprint import pprint
 
 # TODO: Create drawing of tree-hierarchy
 
@@ -108,8 +105,10 @@ class WeatherButton(Button):
             self.source = "icons/weather/rainy.png"
         elif self.description.find('clear sky', 0, length) is not -1:
             self.source = "icons/weather/sunny.png"
-        elif self.description.find('clouds', 0, length) is not -1:
+        elif self.description.find('few clouds', 0, length) is not -1:
             self.source = "icons/weather/partlysun.png"
+        elif self.description.find('clouds') is not -1 and self.description.find('few clouds') is -1:
+            self.source = "icons/weather/cloudy.png"
         elif self.description.find('snow', 0, length) is not -1:
             self.source = "icons/weather/snowy.png"
         elif self.description.find('thunder', 0, length) is not -1:
@@ -294,8 +293,10 @@ class PresentWeatherLayout(GridLayout):
             self.image_source = "icons/weather/rainy.png"
         elif self.description.find('clear sky', 0, length) is not -1:
             self.image_source = "icons/weather/sunny.png"
-        elif self.description.find('clouds', 0, length) is not -1:
+        elif self.description.find('few clouds', 0, length) is not -1:
             self.image_source = "icons/weather/partlysun.png"
+        elif self.description.find('clouds') is not -1 and self.description.find('few clouds') is -1:
+            self.image_source = "icons/weather/cloudy.png"
         elif self.description.find('snow', 0, length) is not -1:
             self.image_source = "icons/weather/snowy.png"
         elif self.description.find('thunder', 0, length) is not -1:
@@ -333,8 +334,10 @@ class DayWeatherLayout(GridLayout):
             image_source = "icons/weather/rainy.png"
         elif description.find('clear sky', 0, length) is not -1:
             image_source = "icons/weather/sunny.png"
-        elif description.find('clouds', 0, length) is not -1:
+        elif description.find('few clouds', 0, length) is not -1:
             image_source = "icons/weather/partlysun.png"
+        elif description.find('clouds') is not -1 and description.find('few clouds') is -1:
+            image_source = "icons/weather/cloudy.png"
         elif description.find('snow', 0, length) is not -1:
             image_source = "icons/weather/snowy.png"
         elif description.find('thunder', 0, length) is not -1:
@@ -372,8 +375,10 @@ class WeekWeatherLayout(GridLayout):
             image_source = "icons/weather/rainy.png"
         elif description.find('clear sky', 0, length) is not -1:
             image_source = "icons/weather/sunny.png"
-        elif description.find('clouds', 0, length) is not -1:
+        elif description.find('few clouds', 0, length) is not -1:
             image_source = "icons/weather/partlysun.png"
+        elif description.find('clouds') is not -1 and description.find('few clouds') is -1:
+            image_source = "icons/weather/cloudy.png"
         elif description.find('snow', 0, length) is not -1:
             image_source = "icons/weather/snowy.png"
         elif description.find('thunder', 0, length) is not -1:
@@ -397,4 +402,5 @@ class MirrorApp(App):
 
 
 if __name__ == '__main__':
+    Window.size = (450, 700)
     MirrorApp().run()
