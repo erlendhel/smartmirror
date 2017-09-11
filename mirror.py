@@ -145,6 +145,7 @@ class SourceLayout(GridLayout):
         for x in range(len(preferredNews)):
             self.preferredNewsIDs.append(preferredNews[x].source['source_id'])
 
+
 class NewModule(Button):
     pass
 
