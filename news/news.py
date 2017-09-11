@@ -36,8 +36,8 @@ class News(object):
     ]
 
     preferred_sources = [
-        'business-insider',
-        'national-geographic',
+        'time',
+        'bbc-news',
         'espn'
     ]
 

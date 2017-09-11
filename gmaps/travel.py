@@ -14,7 +14,7 @@ class Travel(object):
         self.geo_request = requests.get(self.freegeoip)
         self.geo_json = self.geo_request.json()
 
-    def get_travel_time(self, destination, travel_mode, language):
+    def get_travel_time(self, destination, travel_mode, language = "en"):
         distance_matrix = self.__get_distance_matrix(destination, travel_mode, language)
         places = self.__get_destination(destination)
 

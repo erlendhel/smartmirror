@@ -1,97 +1,221 @@
 #: import SwapTransition kivy.uix.screenmanager.SwapTransition
 #: import SlideTransition kivy.uix.screenmanager.SlideTransition
 
+###################### TRICKS AND TIPS ###########################
+
+# To center a widget horizontally inside its parent
+#    - pos: self.parent.width * .5 - self.width * .5, ........
+
+# To highlight the size of a widget:
+#    - canvas.after:
+#				Color:
+#				    rgba: 1,0,0,0.5
+#				Rectangle:
+#					size: self.size
+#					pos: self.pos
+
+###################################################################
+
+
 <ScreenManagement>:
 	transition: SwapTransition()
 	MainScreen:
 	NewsScreen:
+	NewsSourceScreen:
+	NewsArticleScreen:
 	WeatherScreen:
 	SettingScreen:
-	
+
+<TitleButton>:
+    background_color: 0,0,0,1
+    font_size: 19
+
+    on_release:
+        self.set_article()
+        app.root.transition = SlideTransition()
+		app.root.transition.direction = "left"
+        app.root.current = "article"
+
+<Label>:
+    font_name: "fonts/Hattori_Hanzo.otf"
+
+<BackButton>:
+    on_release:
+        app.root.current = "main"
+        app.root.transition.direction = "right"
+        app.root.transition = SwapTransition()
+    pos: 0,0
+    text: "<"
+    background_color: 0,0,0,1
+    font_size:50
+
 <MainScreen>:
 	name: "main"
 	GridLayout:
 		spacing: 0,0
-		rows:5
+		rows:7
 		pos: self.parent.pos
 		size: self.parent.size
-		ClockLabel:
-			name: "clock"
-			text: self.clock
-			size_hint: 0.2,0.2
-			font_size: 100	
-		DateLabel:
-			canvas.after:
-				Color:
-					rgba: 1,0,0,0.5
-				Rectangle: 
-					size: self.size
-					pos: self.pos
+		NavigationGrid:
+		    padding: 25,5
+		    cols: 4
+		    size_hint_y: 0.2
+            Image:
+                source: "icons/navigation/gps.png"
+                size_hint: 0.3 , 0.3
+
+            Label:
+                text: "10 minutes to Krona"
+                font_size: 20
+
+            Image:
+                source: "icons/navigation/car.png"
+                size_hint: 0.3 , 0.3
+
+        DateLabel:
+
 			name: "date"
 			text: self.date
 			size_hint: 0.1, 0.1
 			font_size: 25
-		WeatherButton:
-			on_release: 
-				app.root.current = "weather"
-				app.root.transition = SlideTransition()
-			text: self.temperature
-			background_color: 0,0,0,1
-			font_size: 50
-			size_hint: 0.3,0.3
-			#text_size: self.size
-			#halign: "left"
-			#valign: "middle"
-			Image:
-				source: "sun.png"
-				allow_stretch: True
-				keep_ratio: False
-				pos: self.parent.x + 20, self.parent.y + (self.parent.height / 5.5)
+			font_name: "fonts/Hattori_Hanzo.otf"
+
+		ClockLabel:
+			name: "clock"
+			text: self.clock
+			size_hint: 0.2,0.2
+			font_size: 90
+			font_name: "fonts/Hattori_Hanzo.otf"
+
+        WeatherButton:
+            size_hint_y: 0.2
+            background_color: 0,0,0,1
+            on_release:
+                app.root.current = "weather"
+                app.root.transition = SlideTransition()
+
+            Image:
+                id: image
+                source: self.parent.source
+                pos: self.parent.x + 20, self.parent.y + (self.parent.height / 5.5)
+
+            Label:
+                id: label
+                text: self.parent.temperature
+                background_color: 0,0,0,1
+                font_size: 30
+			    pos: self.parent.x + 95, self.parent.y + 18
+
+            Image:
+                size: 50, 50
+                source: "icons/arrowright.png"
+                pos: self.parent.width - self.width, self.parent.y + (self.parent.height / 2.55)
+
+        SourceLayout:
+            id: icon_container
+            cols:3
+            padding: 20
+            spacing: 10
+            size_hint_y:0.2
+
+            NewsIcon:
+                name: str(icon_container.preferredNewsIDs[0])
+                id: icon_container.preferredNewsIDs[0]
+                background_normal: "icons/news/" + self.name + ".png"
+                background_down: "icons/news/" + self.name + ".png"
+                on_release:
+                    self.set_titles()
+                    app.root.transition = SlideTransition()
+                    app.root.transition.direction = 'left'
+                    app.root.current = "source"
+            NewsIcon:
+                name: str(icon_container.preferredNewsIDs[1])
+                id: icon_container.preferredNewsIDs[1]
+                background_normal: "icons/news/" + self.name + ".png"
+                background_down: "icons/news/" + self.name + ".png"
+                on_release:
+                    self.set_titles()
+                    app.root.transition = SlideTransition()
+                    app.root.transition.direction = 'left'
+                    app.root.current = "source"
+            NewsIcon:
+                name: str(icon_container.preferredNewsIDs[2])
+                id: icon_container.preferredNewsIDs[2]
+                background_normal: "icons/news/" + self.name + ".png"
+                background_down: "icons/news/" + self.name + ".png"
+                on_release:
+                    self.set_titles()
+                    app.root.transition = SlideTransition()
+                    app.root.transition.direction = 'left'
+                    app.root.current = "source"
+
+		NewModule:
+		    size_hint_y: 0.2
+		    background_color: 0,0,0,1
 
 
-		NewsButton:
-			canvas.after:
-				Color:
-				    rgba: 1,0,0,0.5
-				Rectangle:
-					size: self.size
-					pos: self.pos
-			on_release: 
-				app.root.current = "news"
-				app.root.transition = SlideTransition()
-			background_color: 0,0,0,1
-			size_hint: 0.3, 0.3
-			font_size:50
-			Image:
-			    source: "news.png"
-			    allow_stretch: True
-				keep_ratio: False
-				pos: self.parent.x + 20, self.parent.y + (self.parent.height / 5.5)
-			TitleListButton:
-			    canvas.after:
-                    Color:
-                        rgba: 0,0,1,0.1
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-			    text: "title"
-			    size_hint: 0.1, 0.1
-			    pos: self.parent.x + (self.parent.width / 2) - self.width, self.parent.y + (self.parent.height / 5.5)
-                font_size: 25
-
-		Button:
+		SettingButton:
+		    size_hint_y: 0.1
 			on_release: 
 				app.root.current = "settings"
 				app.root.transition = SlideTransition()
 			background_color: 0,0,0,1
-			text: "Settings"
-			size_hint: 0.3, 0.3
-			font_size:50
 
-			
+			font_size: 50
+			Image:
+			    source: "icons/cogwheel.png"
+			    allow_stretch: True
+			    size: 30,30
+				keep_ratio: False
+				pos: self.parent.x + 10, self.parent.y + (self.parent.height / 4)
+
+
 <WeatherScreen>:
 	name: "weather"
-	DrawInput
+    GridLayout:
+        rows: 3
+        font_name: "fonts/Hattori_Hanzo.otf"
+        PresentWeatherLayout:
+            padding: 10
+            id: present_weather
+            cols: 2
+            GridLayout:
+                cols: 2
+                Image:
+                    source: present_weather.image_source
+                Label:
+                    text: root.ids.present_weather.temperature
+                    font_size: 50
+                    font_name: "fonts/Hattori_Hanzo.otf"
+                    id: current_temperature
+            GridLayout:
+                rows: 3
+                Label:
+                    text: "Humidity: " + root.ids.present_weather.humidity
+                    font_size: 22
+                    font_name: "fonts/Hattori_Hanzo.otf"
+                Label:
+                    text: "Sunrise: " + root.ids.present_weather.sunrise
+                    font_size: 22
+                    font_name: "fonts/Hattori_Hanzo.otf"
+                Label:
+                    text: "Sunset: " + root.ids.present_weather.sunset
+                    font_size: 22
+                    font_name: "fonts/Hattori_Hanzo.otf"
+
+        # The seven columns are made in a loop in python file
+        DayWeatherLayout:
+            padding: 10,40
+            id: day_weather
+            cols:7
+
+        # The seven columns are made in a loop in python file
+        WeekWeatherLayout:
+            padding: 10,40
+            id: week_weather
+            cols:7
+
+
 	Button:
 		on_release: 
 			app.root.current = "main"
@@ -117,21 +241,73 @@
 			background_color: 0,0,0,1
 			size_hint: 0.08,0.05
 			font_size:50
-		
+
+
+<NewsSourceScreen>:
+    name: "source"
+    id: source
+    GridLayout:
+        id: grid
+        rows: len(source.titles) + 2 # Titles plus back button and logo
+        padding: 10
+
+<NewsArticleScreen>:
+    name: "article"
+    id: article
+    GridLayout:
+        rows: 3
+        TitleLabel:
+            font_size: 27
+            id: title
+            text_size: self.width, None
+            font_name: "fonts/Hattori_Hanzo.otf"
+            halign: 'center'
+            size_hint_y: 0.4
+
+        PublishedLabel:
+            id: published
+            text: "Published at: "
+            font_name: "fonts/Hattori_Hanzo.otf"
+            font_size: 20
+            size_hint_y: 0.1
+
+        DescriptionLabel:
+            id: description
+            text_size: self.width, None
+            font_name: "fonts/Hattori_Hanzo.otf"
+            halign: 'center'
+            valign: 'top'
+            padding_y: 10
+            font_size: 22
+
+    FloatLayout:
+		Button:
+			on_release:
+			    app.root.transition = SlideTransition()
+			    app.root.transition.direction = "right"
+				app.root.current = "source"
+
+			pos: 0,1
+			text: "<"
+			background_color: 0,0,0,1
+			size_hint: 0.08,0.05
+			font_size:50
+
+
 
 <SettingScreen>:
 	name: "settings"
-	DrawInput
-	Button:
-		on_release: 
-			app.root.current = "main"
-			app.root.transition.direction = "right"
-			app.root.transition = SwapTransition()
-		pos: 0,1
-		text: "<"
-		background_color: 0,0,0,1
-		size_hint: 0.08,0.05
-		font_size:50
+	FloatLayout:
+		Button:
+			on_release:
+				app.root.current = "main"
+				app.root.transition.direction = "right"
+				app.root.transition = SwapTransition()
+			pos: 0,1
+			text: "<"
+			background_color: 0,0,0,1
+			size_hint: 0.08,0.05
+			font_size:50
 
 
 
