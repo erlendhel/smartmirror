@@ -20,6 +20,11 @@ class News(object):
     sources = [
         'bbc-news',
         'bbc-sport',
+        'bloomberg',
+        'buzzfeed',
+        'cnn',
+        'ign',
+        'the-new-york-times',
         'business-insider',
         'daily-mail',
         'engadget',
