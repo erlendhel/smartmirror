@@ -64,12 +64,13 @@
                 source: "icons/navigation/gps.png"
                 size_hint: 0.3 , 0.3
 
-            Label:
-                text: "10 minutes to Krona"
+            NavLabel:
+                id: nav_label
                 font_size: 20
+                font_name: "fonts/Hattori_Hanzo.otf"
 
             Image:
-                source: "icons/navigation/car.png"
+                source: "icons/navigation/"+ nav_label.travel_mode +".png"
                 size_hint: 0.3 , 0.3
 
         DateLabel:
