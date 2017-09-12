@@ -32,6 +32,7 @@ from news import news
 </pre></code>
 
 #### Initialize list of preferred_news *REQUIRED*
+
 <pre><code>test = news.News()
 preferred_news = test.set_preferred_sources()
 </pre></code>
