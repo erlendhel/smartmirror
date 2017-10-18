@@ -51,6 +51,9 @@ class News(object):
             self.all_sources.append(news_src)
         return self.all_sources
 
+    def get_preferred_sources(self):
+        return self.preferred_sources
+
     # Sets sources corresponding to dict: 'preferred_sources'
     # Returns type: list
     def set_preferred_sources(self):
