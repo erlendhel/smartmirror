@@ -5,6 +5,7 @@
 #### Note:
 After the first time setup of OpenCV, or on reboot of RP, the following command must be given in the commandline.
 This adds the module Video4Linux to the Linux Kernel.
-<pre><code>sudo modprobe v4l2</code</pre>
+
+>sudo modprobe v4l2
 
 #### Will be updated
