@@ -379,5 +379,4 @@ class MirrorApp(App):
 
 
 if __name__ == '__main__':
-    Window.size = (450, 700)
     MirrorApp().run()
