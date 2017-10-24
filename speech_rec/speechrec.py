@@ -1,12 +1,9 @@
 import speech_recognition as sr
-from speech_rec import news_speechrec
-from news import news
 
 
+# Class used in order to get and process audio inputs given by the user.
 class SpeechRecognition(object):
     recognizer = None
-    news_list = list()
-    selected_news = None
 
     def __init__(self):
         self.recognizer = sr.Recognizer()
@@ -22,7 +19,7 @@ class SpeechRecognition(object):
 
             try:
                 command = self.recognizer.recognize_google(audio)
-                print(command)
+                print(command)  # TODO: This is for testing
                 return command
 
             except sr.UnknownValueError:
@@ -30,92 +27,3 @@ class SpeechRecognition(object):
 
             except sr.RequestError as e:
                 print('Could not request results; {0}'.format(e))
-
-    # Function to wake up smartmirror from sleepmode. 'Magic words' are given in command
-    def initialize_mirror(self):
-        command = self.get_audio()
-
-        if command == 'Wake up mirror' or command == 'wake up mirror':
-            print('Initialize smartmirror')
-
-    # Defining functions to use in each module of the smartmirror to
-    # minimize the workload on each screen
-    def main_menu_speech(self):
-        command = self.get_audio()
-
-        if command == 'Weather' or command == 'weather':
-            print('Going to weather')
-        
-        elif command == 'Settings' or command == 'settings':
-            print('Going to settings')
-
-        elif
-
-    def weather_speech(self):
-        command = self.get_audio()
-
-        if command == 'Back' or command == 'back':
-            print('Going to main menu')
-
-    # Function which houses the ugliest for-loop in the history of mankind!
-    # Uses the list of preferred news defined in news.py. This list will be
-    # based on the individual preferences of the user. In order to optimize
-    # performance during runtime, this check will be done at the activation
-    # of the mirror. The loop is constrained by the size of preferred_sources,
-    # which is 3. The predefined voice-commands of a news source are appended
-    # to news_list if the given news-source is contained in preferred_sources.
-    def assign_preferred_news(self):
-        pref_news = news.News.preferred_sources
-
-        for source in pref_news:
-            if source == 'bbc-news':
-                self.news_list.append(news_speechrec.bbc)
-            elif source == 'bbc-sport':
-                self.news_list.append(news_speechrec.bbc_sport)
-            elif source == 'business-insider':
-                self.news_list.append(news_speechrec.business_insider)
-            elif source == 'daily-mail':
-                self.news_list.append(news_speechrec.daily_mail)
-            elif source == 'engadged':
-                self.news_list.append(news_speechrec.engadged)
-            elif source == 'espn':
-                self.news_list.append(news_speechrec.espn)
-            elif source == 'financial-times':
-                self.news_list.append(news_speechrec.financial_times)
-            elif source == 'fortune':
-                self.news_list.append(news_speechrec.fortune)
-            elif source == 'fox-sports':
-                self.news_list.append(news_speechrec.fox_sports)
-            elif source == 'mirror':
-                self.news_list.append(news_speechrec.mirror)
-            elif source == 'national-geographic':
-                self.news_list.append(news_speechrec.national_geographic)
-            elif source == 'techcrunch':
-                self.news_list.append(news_speechrec.techcrunch)
-            elif source == 'techradar':
-                self.news_list.append(news_speechrec.techradar)
-            elif source == 'the-new-york-times':
-                self.news_list.append(news_speechrec.the_new_york_times)
-            elif source == 'time':
-                self.news_list.append(news_speechrec.time)
-
-    # Function that determines if a specific news-source is called upon.
-    # Takes the 'command' variable which contains the voice-recording in
-    # string-format. Checks if the string matches any of the strings given
-    # for the preferred news-sources in 'news_list'. 'news_list' is a list
-    # which contains lists for all three preferred news-sources. Each of
-    # the lists are populated with the keywords predefined in news_speechrec.py.
-    # If a match is found, 'selected_news' is set to the first index of the
-    # list item, which contains the keyword used in the News API to get
-    # articles from the API.
-    def determine_news_source(self, command):
-        for source in self.news_list:
-            for keyword in source:
-                if command == keyword:
-                    self.selected_news = source[0]
-                    return True
-
-s = SpeechRecognition()
-s.assign_preferred_news()
-abc = s.determine_news_source("espn")
-print(abc)
