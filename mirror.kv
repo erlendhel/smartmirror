@@ -55,27 +55,53 @@
 
 <StartupScreen>:
     name: "startup"
+    id: startup_screen
     GridLayout:
         spacing: 0,0
-        rows: 2
+        size_hint_y: 0.5
+        pos: 0, (self.parent.height - self.height) - 100
+        rows: 3
         Button:
             text: "Log in"
+            font_size: 25
             on_release:
                 app.root.transition = SlideTransition()
                 app.root.transition.direction = "left"
                 app.root.current = "facerec"
-
+            background_color: 0,0,0,1
+                
         Button:
             text: "Register"
+            font_size: 25
             on_release:
                 app.root.transition = SlideTransition()
                 app.root.transition.direction = "left"
                 app.root.current = "registration"
+            background_color: 0,0,0,1
+            
+        Button:
+            text: "Log in as guest"
+            font_size: 25
+            on_release:
+                app.root.transition = SlideTransition()
+                app.root.transition.direction = "left"
+                app.root.current = "main"
+            background_color: 0,0,0,1
+            
             
 <FaceRecognitionScreen>:
     name: "facerec"
-    Button:
-        text: "Recognizing face..."
+    id: facerec
+    GridLayout:
+        id: facerec_grid
+        size_hint_y: 0.3
+        pos: 0, (self.parent.height - self.height) - 100 
+        rows: 2
+        Label:
+            text: "Recognizing face..."
+            font_size: 25
+        
+        
 
 
 <RegistrationScreen>:
@@ -100,7 +126,7 @@
         Label:
             text: "Step 4"
     Label:
-        text: "Spell your name character by character! \n -'back' to delete last character \n -'done' when finished"
+        text: "Spell your name one character at a time! \n -'back' to delete last character \n -'done' when finished"
         font_size: 25
         pos: self.parent.width * .5 - self.width * .5, self.parent.height / 5
     Label:

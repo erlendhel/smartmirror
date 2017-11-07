@@ -40,7 +40,7 @@ class FacialRecognition(object):
         # images provided in the 'training-data' folder. Since there is
         # no 0'th index of folders (no s1), the space is left blank. The
         # rest of the indexes are linked to s1, s2, s3 etc.
-        self.subjects = ["", "Erlend Helgerud", "Elvis Presley", "Random"]
+        self.subjects = ["", "Erlend Helgerud", "Elvis Presley", "André Håland"]
         print("Preparing data...")
         
         # 'prepare_training_data' produces two vectors, one for images,
@@ -222,7 +222,9 @@ class FacialRecognition(object):
                 # Write name of predicted person
                 # draw_text(img, label_text, rect[0], rect[1] - 5)
 
-
+if __name__ == '__main__':
+    fr = FacialRecognition()
+    fr.predict()
 #perform a prediction
 #predict()
 
