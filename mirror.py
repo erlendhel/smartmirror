@@ -1,18 +1,21 @@
+from time import ctime, time
 from datetime import datetime
-from time import time
+from dateutil import parser
+import threading
 
 import kivy
-from dateutil import parser
-
 kivy.require('1.10.0')
 from kivy.app import App
 from kivy.uix.label import Label
+from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.clock import Clock
-from kivy.properties import StringProperty, ListProperty, DictProperty
+from kivy.properties import NumericProperty, StringProperty, ListProperty, DictProperty
 from kivy.uix.image import Image
+from kivy.core.window import Window
 
 from weather import Weather
 from news import news
@@ -26,7 +29,9 @@ from facerec import facerec
 weather = Weather()
 news = news.News()
 travel = travel.Travel()
-face_rec = facerec.FacialRecognition()
+
+# Will be initialized when entering FaceRecScreen
+face_rec = None
 
 # TODO: Wrap these global variables into a class?
 
@@ -40,6 +45,8 @@ chosenTitles = list()
 # This dict is set when a source title is clicked in the NewsSourceScreen
 # Is set in TitleButton::set_article()
 chosenArticle = dict()
+
+
 
 # Used in several classes used to set weather image paths
 def set_weather_image(description):
@@ -66,16 +73,57 @@ def set_weather_image(description):
     return image_source
 
 class StartupScreen(Screen):
-    pass
+
+    def __init__(self, **kwargs):
+        super(StartupScreen, self).__init__(**kwargs)
+               
 
 class FaceRecognitionScreen(Screen):
+    
+    def __init__(self, **kwargs):
+        super(FaceRecognitionScreen, self).__init__(**kwargs)
+        global face_rec
+        face_rec = facerec.FacialRecognition()
+        
+
+    # When this screen is entered, the camera will try to find
+    # a user registered in the database
+    def on_enter(self):
+        face_found = True # Waiting for predict function to be updated to return a bool
+        face_rec.predict()
+        if(face_found):
+            print("Recognized face")
+            feedback = "Face recognized. Welcome!"
+            self.ids.facerec_grid.add_widget(Label(text=feedback,
+                                                   font_size=40))
+            Clock.schedule_once(self.go_to_mainscreen, 10)
+        else:
+            print("Face not recoqnized")
+            feedback = "Face not recognized. Returning to start screen!"
+            self.ids.facerec_grid.add_widget(Label(text=feedback,
+                                                   font_size=40))
+            Clock.schedule_once(self.go_to_startscreen, 10)
+
+    def go_to_mainscreen(self, *args):
+        self.parent.current = "main"
+        
+
+    def go_to_startscreen(self, *args):
+        self.parent.current = "startup"
+        
+
+
+
+class RegistrationScreen(Screen):
     pass
+
+
+class FaceRegistrationScreen(Screen):
+    pass
+
 
 class MainScreen(Screen):
     pass
-    #def __init__(self, **kwargs):
-    #    super(MainScreen, self).__init__(**kwargs)
-    #   face_rec.predict()
 
 
 class NavigationGrid(GridLayout):

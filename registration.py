@@ -13,8 +13,8 @@ class Registration(object):
         self.db = smartmirrordb.UserDB()
         self.speech = registration_speech.Registration()
 
-    def set_user_name(self):
-        name = self.speech.get_name()
+    def set_user_name(self, name):
+        # name = self.speech.get_name()
         print(name)
         self.db.register_user(name, None, None, None, None, None)
         id = self.db.get_max_id()
@@ -23,3 +23,9 @@ class Registration(object):
     def add_user_face(self, id):
         path = register_face.add_face(id)
         self.db.update_path(id, path)
+        
+if __name__ == '__main__':
+    reg = Registration()
+    id = reg.set_user_name('Placeholder')
+    reg.add_user_face(id)
+    del register_face.camera
