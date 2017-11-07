@@ -31,10 +31,10 @@ class Registration(object):
                 self.name = self.name[:len(self.name) - 1]
             elif command == 'Enter':
                 name_accept = True
+                return self.name
                 # TODO: Registration is done here, name needs to be saved somewhere. User should be taken to
                 # TODO: either choice of news, or registration of face for face-rec
             else:
-                print(command)
                 self.name += command
 
     # Function used to get a single letter from the speech-recognition. Compares the given speech-input with
@@ -59,8 +59,3 @@ class Registration(object):
                     if command is letter:
                         is_letter = True
         return command
-
-# TODO: For testing
-register = Registration()
-register.get_name()
-print(register.name)
