@@ -2,6 +2,7 @@ import cv2
 import os
 import numpy as np
 from db import smartmirrordb
+import singletonCamera
 
 # Tested and compatible with Raspberry Pi 3 and PiCam. Additional setup to get
 # OpenCV to work on Raspberry Pi 3 is needed.
@@ -20,10 +21,9 @@ from db import smartmirrordb
 # processes it, instead of doing a realtime facial-recognition.
 #
 # NOTE:
-# After setting up OpenCV, the command 'sudo modprobe v4l2' must be written
+# After setting up OpenCV, the command 'sudo modprobe bcm2835-v4l2' must be written
 # in the commandline.
 class FacialRecognition(object):
-    camera_port = None
     ramp_frames = None
     camera = None
     subjects = None
@@ -32,12 +32,9 @@ class FacialRecognition(object):
 
     def __init__(self):
         self.db = smartmirrordb.UserDB()
-        # Set index to camera port
-        self.camera_port = 0
         # Number of frames to throw away while the camera adjusts to light levels
         self.ramp_frames = 30
-        # Setting camera to the given camera port
-        self.camera = cv2.VideoCapture(self.camera_port)
+        self.camera = singletonCamera.Camera().instance.camera
 
         # List of names of the predefined users.
         #
@@ -138,9 +135,6 @@ class FacialRecognition(object):
                 # Read image from the given path in 'image_path'
                 image = cv2.imread(image_path)
 
-                # Display a window to show the image
-                # cv2.imshow('Training on image...', image)
-                # cv2.waitKey(100)
                 # Detect face
                 face, rect = self.detect_face(image)
 
@@ -149,25 +143,8 @@ class FacialRecognition(object):
                     faces.append(face)
                     # Add label to the list of labels
                     labels.append(label)
-         #cv2.destroyAllWindows()
-         #cv2.waitKey(1)
-         #cv2.destroyAllWindows()
 
         return faces, labels
-
-    # Function to draw rectangle on image according to given (x, y)
-    # coordinates and given width and height
-    # CURRENTLY UNUSED
-    @staticmethod
-    def draw_rectangle(img, rect):
-        (x, y, w, h) = rect
-        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-    # Function to draw text on given image starting from passed (x, y) coordinates.
-    # CURRENTLY UNUSED
-    @staticmethod
-    def draw_text(img, text, x, y):
-        cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, (0, 255, 0), 2)
 
     # This function recognizes the person in image passed
     def predict(self):
@@ -223,8 +200,3 @@ class FacialRecognition(object):
                 # Get name of respective label returned by face recognizer
             else:
                 print('Unknown')
-
-fr = FacialRecognition()
-print(fr.subjects)
-fr.add_face()
-

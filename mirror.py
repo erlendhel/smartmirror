@@ -1,20 +1,18 @@
-from time import ctime, time
 from datetime import datetime
-from dateutil import parser
+from time import time
 
 import kivy
+from dateutil import parser
+
 kivy.require('1.10.0')
 from kivy.app import App
 from kivy.uix.label import Label
-from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.clock import Clock
-from kivy.properties import NumericProperty, StringProperty, ListProperty, DictProperty
+from kivy.properties import StringProperty, ListProperty, DictProperty
 from kivy.uix.image import Image
-from kivy.core.window import Window
 
 from weather import Weather
 from news import news
