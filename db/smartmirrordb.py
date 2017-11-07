@@ -142,9 +142,8 @@ class UserDB(object):
         self.cursor.execute(
             '''
                 UPDATE users
-                SET img_path=?
-                WHERE id=?
+                SET img_path = ?
+                WHERE id = ?
             ''', (path, id)
         )
         self.db.commit()
-        
