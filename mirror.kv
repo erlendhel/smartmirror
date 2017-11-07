@@ -20,6 +20,9 @@
 <ScreenManagement>:
 	transition: SlideTransition()
 	StartupScreen:
+	FaceRecognitionScreen:
+	RegistrationScreen:
+	FaceRegistrationScreen:
 	MainScreen:
 	NewsScreen:
 	NewsSourceScreen:
@@ -58,12 +61,51 @@
         Button:
             text: "Log in"
             on_release:
-                app.root.current = "facerecognition"
                 app.root.transition = SlideTransition()
+                app.root.transition.direction = "left"
+                app.root.current = "facerec"
+
         Button:
             text: "Register"
+            on_release:
+                app.root.transition = SlideTransition()
+                app.root.transition.direction = "left"
+                app.root.current = "registration"
             
+<FaceRecognitionScreen>:
+    name: "facerec"
+    Button:
+        text: "Recognizing face..."
 
+
+<RegistrationScreen>:
+    name: "registration"
+    GridLayout:
+#        canvas.after:
+#    		Color:
+#               rgba: 1,0,0,0.5
+#			Rectangle:
+#				size: self.size
+#				pos: self.pos
+        size_hint_y: 0.2
+        size_hint_x: 0.2
+        pos: 0, self.parent.height - self.height
+        rows:4
+        Label:
+            text: "Step 1"
+        Label:
+            text: "Step 2"
+        Label:
+            text: "Step 3"
+        Label:
+            text: "Step 4"
+    Label:
+        text: "Spell your name character by character! \n -'back' to delete last character \n -'done' when finished"
+        font_size: 25
+        pos: self.parent.width * .5 - self.width * .5, self.parent.height / 5
+    Label:
+        text: "FIRST LAST"
+        font_size: 35
 <MainScreen>:
 	name: "main"
 	GridLayout:
