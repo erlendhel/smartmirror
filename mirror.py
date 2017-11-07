@@ -19,6 +19,8 @@ from kivy.core.window import Window
 from weather import Weather
 from news import news
 from gmaps import travel
+from facerec import facerec
+
 
 # TODO: Create drawing of tree-hierarchy
 
@@ -26,6 +28,7 @@ from gmaps import travel
 weather = Weather()
 news = news.News()
 travel = travel.Travel()
+face_rec = facerec.FacialRecognition()
 
 # TODO: Wrap these global variables into a class?
 
@@ -64,9 +67,14 @@ def set_weather_image(description):
 
     return image_source
 
+class StartupScreen(Screen):
+    pass
 
 class MainScreen(Screen):
-    pass
+
+    #def __init__(self, **kwargs):
+    #    super(MainScreen, self).__init__(**kwargs)
+    #   face_rec.predict()
 
 
 class NavigationGrid(GridLayout):

@@ -18,7 +18,8 @@
 
 
 <ScreenManagement>:
-	transition: SwapTransition()
+	transition: SlideTransition()
+	StartupScreen:
 	MainScreen:
 	NewsScreen:
 	NewsSourceScreen:
@@ -48,6 +49,9 @@
     text: "<"
     background_color: 0,0,0,1
     font_size:50
+
+<StartupScreen>:
+    name: "startup"
 
 <MainScreen>:
 	name: "main"
