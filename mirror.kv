@@ -18,7 +18,8 @@
 
 
 <ScreenManagement>:
-	transition: SwapTransition()
+	transition: SlideTransition()
+	StartupScreen:
 	MainScreen:
 	NewsScreen:
 	NewsSourceScreen:
@@ -48,6 +49,20 @@
     text: "<"
     background_color: 0,0,0,1
     font_size:50
+
+<StartupScreen>:
+    name: "startup"
+    GridLayout:
+        spacing: 0,0
+        rows: 2
+        Button:
+            text: "Log in"
+            on_release:
+                app.root.current = "facerecognition"
+                app.root.transition = SlideTransition()
+        Button:
+            text: "Register"
+            
 
 <MainScreen>:
 	name: "main"
