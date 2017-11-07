@@ -46,7 +46,15 @@ class FacialRecognition(object):
         # 'prepare_training_data' produces two vectors, one for images,
         # and one for labels. Labels are integers from one and up, which
         # represent the index of the list 'subjects'.
-        faces, labels = self.prepare_training_data("training-data")
+        
+        dir = ""
+        if __name__ == '__main__':
+            dir = "training-data"
+        else:
+            dir = "facerec/training-data"
+        
+        faces, labels = self.prepare_training_data(dir)
+        
         print("Data prepared")
         # Create the LBPH face-recognizer
         #
@@ -71,7 +79,15 @@ class FacialRecognition(object):
         #
         # NOTE:
         # If algorithm is changed, this needs to be changed aswell
-        face_cascade = cv2.CascadeClassifier('opencv-files/lbpcascade_frontalface.xml')
+        dir = ""
+        if __name__ == '__main__':
+            dir = "opencv-files/lbpcascade_frontalface.xml"
+        else:
+            dir = "facerec/opencv-files/lbpcascade_frontalface.xml" 
+            
+            
+        face_cascade = cv2.CascadeClassifier(dir)
+            
         # Detecting multiscale images
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5)
 
@@ -125,9 +141,9 @@ class FacialRecognition(object):
                     faces.append(face)
                     # Add label to the list of labels
                     labels.append(label)
-        # cv2.destroyAllWindows()
-        # cv2.waitKey(1)
-        # cv2.destroyAllWindows()
+         #cv2.destroyAllWindows()
+         #cv2.waitKey(1)
+         #cv2.destroyAllWindows()
 
         return faces, labels
 
@@ -159,11 +175,23 @@ class FacialRecognition(object):
             # Set the destination for the image, there will always just
             # be one reference image. This image is overwritten the next
             # time a prediction must be made.
-            file = "reference-data/reference.png"
+            file = ""
+            if __name__ == '__main__':
+                file = "reference-data/reference.png"
+            else:
+                file = "facerec/reference-data/reference.png"
             # Write the image to the path given in 'file'.
             cv2.imwrite(file, camera_capture)
+            
+            dir = ""
+            if __name__ == '__main__':
+                dir = "reference-data/reference.png"
+            else:
+                dir = "facerec/reference-data/reference.png"
+            
             # Read the image stored in the path given in 'file'
-            img = cv2.imread("reference-data/reference.png")
+            img = cv2.imread(dir)
+            
             # Detect face from given image
             face, rect = self.detect_face(img)
 
