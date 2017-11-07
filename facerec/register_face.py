@@ -41,4 +41,5 @@ def add_face(id):
 
         cv2.imwrite(file, camera_capture)
         n = n + 1
+    del camera
     return return_path
