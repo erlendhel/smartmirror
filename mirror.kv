@@ -52,6 +52,17 @@
 
 <StartupScreen>:
     name: "startup"
+    GridLayout:
+        spacing: 0,0
+        rows: 2
+        Button:
+            text: "Log in"
+            on_release:
+                app.root.current = "facerecognition"
+                app.root.transition = SlideTransition()
+        Button:
+            text: "Register"
+            
 
 <MainScreen>:
 	name: "main"

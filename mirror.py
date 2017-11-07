@@ -70,8 +70,11 @@ def set_weather_image(description):
 class StartupScreen(Screen):
     pass
 
-class MainScreen(Screen):
+class FaceRecognitionScreen(Screen):
+    pass
 
+class MainScreen(Screen):
+    pass
     #def __init__(self, **kwargs):
     #    super(MainScreen, self).__init__(**kwargs)
     #   face_rec.predict()
