@@ -85,19 +85,3 @@ class UserDB(object):
             ''', (user_id,)
         )
         return self.cursor.fetchall()
-
-
-db = UserDB()
-
-users = db.get_all_users()
-
-print(users)
-
-user = db.get_user_by_id(2)
-
-path = db.get_path_by_id(1)
-
-print(user)
-
-print(path)
-
