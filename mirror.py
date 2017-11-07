@@ -89,26 +89,26 @@ class FaceRecognitionScreen(Screen):
     # When this screen is entered, the camera will try to find
     # a user registered in the database
     def on_enter(self):
-        face_found = False # Waiting for predict function to be updated to return a bool
+        face_found = True # Waiting for predict function to be updated to return a bool
         face_rec.predict()
         if(face_found):
             print("Recognized face")
             feedback = "Face recognized. Welcome!"
             self.ids.facerec_grid.add_widget(Label(text=feedback,
                                                    font_size=40))
-            Clock.schedule_once(self.go_to_mainscreen, 15)
+            Clock.schedule_once(self.go_to_mainscreen, 10)
         else:
             print("Face not recoqnized")
             feedback = "Face not recognized. Returning to start screen!"
             self.ids.facerec_grid.add_widget(Label(text=feedback,
                                                    font_size=40))
-            Clock.schedule_once(self.go_to_startscreen, 15)
+            Clock.schedule_once(self.go_to_startscreen, 10)
 
-    def go_to_mainscreen(self, *args, clear):
+    def go_to_mainscreen(self, *args):
         self.parent.current = "main"
         
 
-    def go_to_startscreen(self, *args, clear):
+    def go_to_startscreen(self, *args):
         self.parent.current = "startup"
         
 
