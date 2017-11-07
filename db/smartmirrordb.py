@@ -55,18 +55,6 @@ class UserDB(object):
             users.append(user[0])
         return users
 
-    def get_all_keys(self):
-        self.cursor.execute(
-            '''
-                SELECT id FROM users
-            '''
-        )
-        keys_tuples = self.cursor.fetchall()
-        keys = list()
-        for key in keys_tuples:
-            keys.append(key[0])
-        return keys
-
     def get_user_by_id(self, user_id):
         self.cursor.execute(
             '''
