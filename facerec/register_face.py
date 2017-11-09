@@ -1,12 +1,12 @@
 import os
 import cv2
+import singletonCamera
 from db import smartmirrordb
 
-camera_port = 0
 # Number of frames to throw away while the camera adjusts to light levels
 ramp_frames = 30
-# Setting camera to the given camera port
-camera = cv2.VideoCapture(camera_port)
+
+camera = singletonCamera.Camera().instance.camera
 
 db = smartmirrordb.UserDB()
 
