@@ -76,7 +76,7 @@
             on_release:
                 app.root.transition = SlideTransition()
                 app.root.transition.direction = "left"
-                app.root.current = "registration"
+                #app.root.current = "registration"
             background_color: 0,0,0,1
             
         Button:
@@ -85,7 +85,7 @@
             on_release:
                 app.root.transition = SlideTransition()
                 app.root.transition.direction = "left"
-                app.root.current = "main"
+                #app.root.current = "main"
             background_color: 0,0,0,1
             
             
@@ -98,6 +98,7 @@
         pos: 0, (self.parent.height - self.height) - 100 
         rows: 2
         Label:
+            id: recognizing_label
             text: "Recognizing face..."
             font_size: 25
         

@@ -1,7 +1,6 @@
 from time import ctime, time
 from datetime import datetime
 from dateutil import parser
-import threading
 
 import kivy
 kivy.require('1.10.0')
@@ -20,7 +19,9 @@ from kivy.core.window import Window
 from weather import Weather
 from news import news
 from gmaps import travel
+#import registration
 from facerec import facerec
+
 
 
 # TODO: Create drawing of tree-hierarchy
@@ -33,7 +34,7 @@ travel = travel.Travel()
 # Will be initialized when entering FaceRecScreen
 face_rec = None
 
-# TODO: Wrap these global variables into a class?
+# TODO: Wrap the global variables above into a class?
 
 # This list contains a list of three preferred(chosen) sources
 preferredNews = news.set_preferred_sources()
@@ -80,6 +81,7 @@ class StartupScreen(Screen):
 
 class FaceRecognitionScreen(Screen):
     
+    
     def __init__(self, **kwargs):
         super(FaceRecognitionScreen, self).__init__(**kwargs)
         global face_rec
@@ -89,29 +91,44 @@ class FaceRecognitionScreen(Screen):
     # When this screen is entered, the camera will try to find
     # a user registered in the database
     def on_enter(self):
-        face_found = True # Waiting for predict function to be updated to return a bool
+        face_found = False # Waiting for predict function to be updated to return a bool
+        # Start looking for a registered face
         face_rec.predict()
         if(face_found):
-            print("Recognized face")
-            feedback = "Face recognized. Welcome!"
-            self.ids.facerec_grid.add_widget(Label(text=feedback,
-                                                   font_size=40))
+            # Inform the user that he/she has sucessfully logged in
+            feedback_text = "Face recognized\n\n Welcome!"
+            self.feedback = Label(text=feedback_text,font_size=40, halign='center')
+            self.ids.facerec_grid.add_widget(self.feedback)
+            # Remove status label
+            self.ids.recognizing_label.text = ""
+            # Go to the main application screen after a small delay
             Clock.schedule_once(self.go_to_mainscreen, 10)
         else:
-            print("Face not recoqnized")
-            feedback = "Face not recognized. Returning to start screen!"
-            self.ids.facerec_grid.add_widget(Label(text=feedback,
-                                                   font_size=40))
+            # Inform that no face was found
+            feedback_text = "Face not recognized\n\n Returning to start screen"
+            self.feedback = Label(text=feedback_text,font_size=40, halign='center')
+            self.ids.facerec_grid.add_widget(self.feedback)
+            # Remove status label
+            self.ids.recognizing_label.text = ""
+            # Go to the startup screen after a small delay
             Clock.schedule_once(self.go_to_startscreen, 10)
+            
 
     def go_to_mainscreen(self, *args):
         self.parent.current = "main"
+        # Remove feedback label
+        self.ids.facerec_grid.remove_widget(self.feedback)
+        # Add status label so it will apear next time trying to log in
+        self.ids.recognizing_label.text = "Recognizing face..."
         
 
     def go_to_startscreen(self, *args):
         self.parent.current = "startup"
+        # Remove feedback label
+        self.ids.facerec_grid.remove_widget(self.feedback)
+        # Add status label so it will apear next time trying to log in
+        self.ids.recognizing_label.text = "Recognizing face..."
         
-
 
 
 class RegistrationScreen(Screen):
