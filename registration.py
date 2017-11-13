@@ -1,17 +1,21 @@
 # Wrapper class used in the user registration process
+# TODO: Bugs with facerec and singletonCamera. Needs fix before face registration will work. Pathing
 
 from db import smartmirrordb
-from facerec import register_face
+# from facerec import register_face
 from speech_rec import registration_speech
+from speech_rec import register_news
 
 
 class Registration(object):
     db = None
     speech = None
+    news = None
 
     def __init__(self):
         self.db = smartmirrordb.UserDB()
         self.speech = registration_speech.Registration()
+        self.news = register_news.RegisterNews()
 
     #   Wrapper function used to set username and store it to the database
     #   Returns the ID / Primary Key assigned to the registered user.
@@ -30,10 +34,12 @@ class Registration(object):
 
     #   Wrapper function which stores the user's preferred news to the database
     def add_news(self, id):
+        self.news.set_preferred_news('bbc-news')
+        news_list = self.news.get_preferred_news()
+        self.db.update_news(id, news_list)
+
         pass
         
 if __name__ == '__main__':
     reg = Registration()
-    id = reg.set_user_name('Placeholder')
-    reg.add_user_face(id)
-    del register_face.camera
+    reg.add_news(1)

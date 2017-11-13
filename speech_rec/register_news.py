@@ -23,12 +23,12 @@ class RegisterNews(object):
     # result to the list preferred_news. Counter makes sure no more than 3 sources
     # are added per registration. For simplicity, the user cannot undo choices made
     # in the selection.
-    def set_preferred_news(self):
+    def set_preferred_news(self, source1):
         finished = False
         counter = 0
         while not finished:
             # audio = str(self.recognizer.get_audio())
-            audio = 'bbc-news'
+            audio = source1
             found = False
             if counter < 3:
                 for source in news_keywords.sources:
