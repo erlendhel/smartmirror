@@ -6,39 +6,34 @@ from news import news
 class MenuSpeech(object):
     news_list = list()
     selected_news = None
-    sr = None
+    recognizer = None
 
     def __init__(self):
-        self.sr = speechrec.SpeechRecognition()
+        self.recognizer = speechrec.SpeechRecognition()
 
     # Function to wake up smartmirror from sleepmode. 'Magic words' are given in command
     def initialize_mirror(self):
-        command = self.sr.get_audio()
-
+        command = self.recognizer.get_audio()
         if command == 'Wake up mirror' or command == 'wake up mirror':
             print('Initialize smartmirror')
 
     # Defining functions to use in each module of the smartmirror to
     # minimize the workload on each screen
     def main_menu_speech(self):
-        command = self.sr.get_audio()
-
+        command = self.recognizer.get_audio()
         if command == 'Weather' or command == 'weather':
             print('Going to weather')
-
         elif command == 'Settings' or command == 'settings':
             print('Going to settings')
-
         elif self.determine_news_source(command):
             print('Going to: ', self.selected_news)
 
     def weather_speech(self):
-        command = self.sr.get_audio()
-
+        command = self.recognizer.get_audio()
         if command == 'Back' or command == 'back':
             print('Going to main menu')
 
-    # Function which houses the ugliest for-loop in the history of mankind.
+    # TODO: MAYBE REDUNDANT
     # Uses the list of preferred news defined in news.py. This list will be
     # based on the individual preferences of the user. In order to optimize
     # performance during runtime, this check will be done at the activation
@@ -80,6 +75,7 @@ class MenuSpeech(object):
             elif source == 'time':
                 self.news_list.append(news_keywords.time)
 
+    # TODO: MAYBE REDUNDANT
     # Function that determines if a specific news-source is called upon.
     # Takes the 'command' variable which contains the voice-recording in
     # string-format. Checks if the string matches any of the strings given
@@ -95,12 +91,3 @@ class MenuSpeech(object):
                 if command == keyword:
                     self.selected_news = source[0]
                     return True
-
-
-# TODO: Testing
-
-m = MenuSpeech()
-m.assign_preferred_news()
-m.main_menu_speech()
-
-# TODO: Testing end
