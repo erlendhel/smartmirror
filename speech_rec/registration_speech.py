@@ -1,11 +1,12 @@
 from speech_rec import speechrec
+from speech_rec import news_keywords
+from news import news
 
 
 # Class used for user-registration with the help of speech-recognition
 class Registration(object):
-    speech = None
+    recognizer = None
     name = None
-    # TODO: Consider making a own function with keywords for recognizing letters.
     alphabet = ['A', 'a', 'B', 'b', 'C', 'c', 'D', 'd', 'E', 'EE', 'e', 'F', 'f',
                 'G', 'g', 'H', 'h', 'I', 'i', 'J', 'j', 'K', 'k', 'L', 'l',
                 'M', 'm', 'N', 'n', 'O', 'o', 'P', 'p', 'Q', 'q', 'R', 'r'
@@ -13,12 +14,11 @@ class Registration(object):
                 'Y', 'y', 'Z', 'z']
 
     def __init__(self):
-        self.speech = speechrec.SpeechRecognition()
+        self.recognizer = speechrec.SpeechRecognition()
         self.name = ""
 
-    def get_name(self):
+    def set_name(self):
         name_accept = False
-        # TODO Buggy as hell
         print('INSTRUCTIONS: ')
         print('Please spell your name, you have to do it one letter at a time. When a letter is registered'
               ' it will appear on the screen')
@@ -30,11 +30,10 @@ class Registration(object):
                 # Delete last character
                 self.name = self.name[:len(self.name) - 1]
             elif command == 'Enter':
-                name_accept = True
+                # Return the name accepted by the user
                 return self.name
-                # TODO: Registration is done here, name needs to be saved somewhere. User should be taken to
-                # TODO: either choice of news, or registration of face for face-rec
             else:
+                # Add letter to name
                 self.name += command
 
     # Function used to get a single letter from the speech-recognition. Compares the given speech-input with
@@ -45,7 +44,7 @@ class Registration(object):
         command = None
         while not is_letter:
             # Store speech in string
-            command = str(self.speech.get_audio())
+            command = str(self.recognizer.get_audio())
             # Check if user wants to erase last given letter
             if command == 'Back' or command == 'BACK' or command == 'back':
                 return 'Delete'
@@ -59,3 +58,12 @@ class Registration(object):
                     if command is letter:
                         is_letter = True
         return command
+
+    def set_news(self):
+        print('Making ready to select news ..')
+        command = None
+        finished = False
+        news_list = list()
+        for attr in dir(news_keywords):
+            if not (attr.startswith('__')):
+                news_list.append(attr)
