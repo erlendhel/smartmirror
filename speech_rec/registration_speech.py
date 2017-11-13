@@ -67,6 +67,3 @@ class Registration(object):
         for attr in dir(news_keywords):
             if not (attr.startswith('__')):
                 news_list.append(attr)
-
-reg = Registration()
-reg.set_news()

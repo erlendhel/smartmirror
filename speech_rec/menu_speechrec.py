@@ -1,5 +1,6 @@
 from speech_rec import speechrec
 from speech_rec import news_keywords
+from db import smartmirrordb
 from news import news
 
 
@@ -7,9 +8,11 @@ class MenuSpeech(object):
     news_list = list()
     selected_news = None
     recognizer = None
+    db = None
 
     def __init__(self):
         self.recognizer = speechrec.SpeechRecognition()
+        self.db = smartmirrordb.UserDB()
 
     # Function to wake up smartmirror from sleepmode. 'Magic words' are given in command
     def initialize_mirror(self):
@@ -33,7 +36,43 @@ class MenuSpeech(object):
         if command == 'Back' or command == 'back':
             print('Going to main menu')
 
-    # TODO: MAYBE REDUNDANT
+    # TODO: Used in startup to assign a user's preferred news. Gets values from the database based on id
+    def assign_pref_news(self, id):
+        pref_news = self.db.get_news_sources_by_id(id)
+
+        for source in pref_news:
+            if source == 'bbc-news':
+                self.news_list.append(news_keywords.bbc)
+            elif source == 'bbc-sport':
+                self.news_list.append(news_keywords.bbc_sport)
+            elif source == 'business-insider':
+                self.news_list.append(news_keywords.business_insider)
+            elif source == 'daily-mail':
+                self.news_list.append(news_keywords.daily_mail)
+            elif source == 'engadged':
+                self.news_list.append(news_keywords.engadged)
+            elif source == 'espn':
+                self.news_list.append(news_keywords.espn)
+            elif source == 'financial-times':
+                self.news_list.append(news_keywords.financial_times)
+            elif source == 'fortune':
+                self.news_list.append(news_keywords.fortune)
+            elif source == 'fox-sports':
+                self.news_list.append(news_keywords.fox_sports)
+            elif source == 'mirror':
+                self.news_list.append(news_keywords.mirror)
+            elif source == 'national-geographic':
+                self.news_list.append(news_keywords.national_geographic)
+            elif source == 'techcrunch':
+                self.news_list.append(news_keywords.techcrunch)
+            elif source == 'techradar':
+                self.news_list.append(news_keywords.techradar)
+            elif source == 'the-new-york-times':
+                self.news_list.append(news_keywords.the_new_york_times)
+            elif source == 'time':
+                self.news_list.append(news_keywords.time)
+
+    # TODO: OLD!!! MAYBE REDUNDANT
     # Uses the list of preferred news defined in news.py. This list will be
     # based on the individual preferences of the user. In order to optimize
     # performance during runtime, this check will be done at the activation
