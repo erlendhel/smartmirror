@@ -19,19 +19,16 @@ from kivy.core.window import Window
 from weather import Weather
 from news import News
 from gmaps import travel
-#import registration
 from facerec import facerec
+import registration
 
-
-
-# TODO: Create drawing of tree-hierarchy
 
 # TODO: program crashes if there is no internet connection
 weather = Weather()
 news = News.News()
 travel = travel.Travel()
 
-# Will be initialized when entering FaceRecScreen
+# Will be initialized init function of FaceRecognitionScreen
 face_rec = None
 
 # TODO: Wrap the global variables above into a class?
