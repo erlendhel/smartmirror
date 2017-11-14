@@ -54,8 +54,8 @@ class News(object):
 
     # Sets sources corresponding to dict: 'preferred_sources'
     # Returns type: list
-    def set_preferred_sources(self):
-        for src in self.preferred_sources:
+    def set_preferred_sources(self, preferred_news):
+        for src in preferred_news:
             news_src = source.Source(src)
             news_src.init_articles(src)
             self.pref_sources.append(news_src)
@@ -73,8 +73,8 @@ class News(object):
 
     def get_articles_by_source(self, preferred_news, source_id):
         for news in preferred_news:
-            if news.source['source_id'] == source_id:
-                articles = news.source['articles']
+            if news['source_id'] == source_id:
+                articles = news['articles']
                 return articles
 
     # Function to get a single article based on given article_id
