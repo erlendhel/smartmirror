@@ -1,6 +1,5 @@
 from speech_rec import speechrec
 from speech_rec import news_keywords
-from news import news
 
 
 # Class housing the functions used to register different news sources in the registration

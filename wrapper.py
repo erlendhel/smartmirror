@@ -3,19 +3,23 @@
 
 from db import smartmirrordb
 from facerec import register_face
+from news import News
 from speech_rec import registration_speech
 from speech_rec import register_news
 
 
-class Registration(object):
+class Wrapper(object):
     db = None
     speech = None
+    reg_news = None
     news = None
+    user = None
 
     def __init__(self):
         self.db = smartmirrordb.UserDB()
         self.speech = registration_speech.Registration()
-        self.news = register_news.RegisterNews()
+        self.reg_news = register_news.RegisterNews()
+        self.news = News.News()
 
     #   Wrapper function used to set username and store it to the database
     #   Returns the ID / Primary Key assigned to the registered user.
@@ -34,12 +38,29 @@ class Registration(object):
 
     #   Wrapper function which stores the user's preferred news to the database
     def add_news(self, id):
-        self.news.set_preferred_news()
-        news_list = self.news.get_preferred_news()
+        self.reg_news.set_preferred_news()
+        news_list = self.reg_news.get_preferred_news()
         self.db.update_news(id, news_list)
 
-        pass
-        
+    def user_db_to_dict(self, id):
+        user_list = self.db.get_user_by_id(id)
+        # Create a user object as a dict for easy reference with the field names from the database
+        self.user = {
+            'id': user_list[0],
+            'name': user_list[1],
+            'img_path': user_list[2],
+            'news_source_one': user_list[3],
+            'news_source_two': user_list[4],
+            'news_source_three': user_list[5],
+            'destination': user_list[6]
+        }
+
+    def get_user(self):
+        if self.user is not None:
+            return self.user
+
+
 if __name__ == '__main__':
-    reg = Registration()
-    reg.add_news(1)
+    reg = Wrapper()
+    user = reg.get_user()
+    print(user)

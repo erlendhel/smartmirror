@@ -66,7 +66,7 @@ class UserDB(object):
         user = list()
         for item in user_tuple:
             user.append(item)
-        return user_tuple
+        return user
 
     def get_all_names(self):
         self.cursor.execute(
