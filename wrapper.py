@@ -14,6 +14,7 @@ class Wrapper(object):
     reg_news = None
     news = None
     user = None
+    news_sources = list()
 
     def __init__(self):
         self.db = smartmirrordb.UserDB()
@@ -21,8 +22,8 @@ class Wrapper(object):
         self.reg_news = register_news.RegisterNews()
         self.news = News.News()
 
-    #   Wrapper function used to set username and store it to the database
-    #   Returns the ID / Primary Key assigned to the registered user.
+    # Wrapper function used to set username and store it to the database
+    # Returns the ID / Primary Key assigned to the registered user.
     def set_user_name(self, name):  # TODO: TAKES ARGUMENT FOR TESTING ONLY
         # name = self.speech.set_name() TODO: COMMENTED FOR TESTING ONLY
         print(name)  # TODO: FOR TESTING
@@ -30,18 +31,20 @@ class Wrapper(object):
         id = self.db.get_max_id()
         return id
 
-    #   Wrapper function which stores reference images of the user's face to
-    #   file and saves the path to the dir in the database.
+    # Wrapper function which stores reference images of the user's face to
+    # file and saves the path to the dir in the database.
     def add_user_face(self, id):
         path = register_face.add_face(id)
         self.db.update_path(id, path)
 
-    #   Wrapper function which stores the user's preferred news to the database
+    # Wrapper function which stores the user's preferred news to the database
     def add_news(self, id):
         self.reg_news.set_preferred_news()
         news_list = self.reg_news.get_preferred_news()
         self.db.update_news(id, news_list)
 
+    # Function which gets a user from the database and creates a dict with the fieldnames as identifiers.
+    # Assigns to self.user
     def user_db_to_dict(self, id):
         user_list = self.db.get_user_by_id(id)
         # Create a user object as a dict for easy reference with the field names from the database
@@ -55,12 +58,35 @@ class Wrapper(object):
             'destination': user_list[6]
         }
 
+    # Function which returns self.user
     def get_user(self):
         if self.user is not None:
             return self.user
 
+    # Function which gets news sources for a specific user given by the id and sets them
+    # to self.news_sources
+    def set_news_sources(self, id):
+        placeholder_sources = self.db.get_news_sources_by_id(id)
+        sources = self.news.set_preferred_sources(placeholder_sources)
+        for source in sources:
+            self.news_sources.append(source.source)
 
+    # Function which returns self.news_sources
+    def get_news_sources(self):
+        return self.news_sources
+
+    # Function which returns all articles for a source given by the source_id
+    def get_articles_by_source(self, source_id):
+        articles = self.news.get_articles_by_source(self.news_sources, source_id)
+        return articles
+
+# TODO: For testing
 if __name__ == '__main__':
     reg = Wrapper()
     user = reg.get_user()
-    print(user)
+    reg.set_news_sources(1)
+    sources = reg.get_news_sources()
+    print(sources)
+    art = reg.get_articles_by_source('bbc-news')
+    print(art)
+
