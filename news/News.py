@@ -1,6 +1,4 @@
 from news import source
-from news import article as ArticleImport
-from pprint import pprint
 
 #
 # Contains lists to specify which sources of news can be accessed and also which
@@ -87,4 +85,3 @@ class News(object):
                 if art['article_id'] == article_id:
                     article = art
                     return article
-

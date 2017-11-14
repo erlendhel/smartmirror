@@ -66,7 +66,7 @@ class UserDB(object):
         user = list()
         for item in user_tuple:
             user.append(item)
-        return user_tuple
+        return user
 
     def get_all_names(self):
         self.cursor.execute(
@@ -126,6 +126,7 @@ class UserDB(object):
                 sources.append(item)
         return sources
 
+    # Function returning the max primary key of the database
     def get_max_id(self):
         self.cursor.execute(
             '''
@@ -138,6 +139,7 @@ class UserDB(object):
         id_value = id_tuple[0]
         return id_value
 
+    # Funtion used to update the image path of a given user, takes user id and path
     def update_path(self, id, path):
         self.cursor.execute(
             '''
@@ -145,5 +147,23 @@ class UserDB(object):
                 SET img_path = ?
                 WHERE id = ?
             ''', (path, id)
+        )
+        self.db.commit()
+
+    # Function to update the news fields into the database, takes user id and a list of
+    # news sources.
+    def update_news(self, id, news_sources):
+        source_one = news_sources[0]
+        source_two = news_sources[1]
+        source_three = news_sources[2]
+        self.cursor.execute(
+            '''
+                UPDATE users
+                SET
+                    news_source_one = ?,
+                    news_source_two = ?,
+                    news_source_three = ?
+                WHERE id = ?
+            ''', (source_one, source_two, source_three, id)
         )
         self.db.commit()

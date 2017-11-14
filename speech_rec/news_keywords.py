@@ -1,4 +1,5 @@
 # All keywords allowed to call upon different news-sources are contained in this file.
+
 bbc = [
     'bbc-news',
     'bbc',
@@ -86,3 +87,21 @@ time = [
     'time-magazine',
     'Time Magazine'
 ]
+
+sources = {
+    'bbc-news': bbc,
+    'bbc-sport': bbc_sport,
+    'business-insider': business_insider,
+    'daily-mail': daily_mail,
+    'engadged': engadged,
+    'espn': espn,
+    'financial-times': financial_times,
+    'fortune': fortune,
+    'fox-sports': fox_sports,
+    'mirror': mirror,
+    'national-geographic': national_geographic,
+    'techcrunch': techcrunch,
+    'techradar': techradar,
+    'the-new-york-times': the_new_york_times,
+    'time': time
+}

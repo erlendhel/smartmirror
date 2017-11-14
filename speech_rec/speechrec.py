@@ -16,14 +16,10 @@ class SpeechRecognition(object):
             with sr.Microphone() as source:
                 print('Speak:')
                 audio = self.recognizer.listen(source)
-
             try:
                 command = self.recognizer.recognize_google(audio)
-                print(command)  # TODO: This is for testing
                 return command
-
             except sr.UnknownValueError:
                 print('Could not understand audio')
-
             except sr.RequestError as e:
                 print('Could not request results; {0}'.format(e))

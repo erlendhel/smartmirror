@@ -17,7 +17,7 @@ from kivy.uix.image import Image
 from kivy.core.window import Window
 
 from weather import Weather
-from news import news
+from news import News
 from gmaps import travel
 from facerec import facerec
 import registration
@@ -25,7 +25,7 @@ import registration
 
 # TODO: program crashes if there is no internet connection
 weather = Weather()
-news = news.News()
+news = News.News()
 travel = travel.Travel()
 
 # Will be initialized init function of FaceRecognitionScreen
@@ -70,6 +70,7 @@ def set_weather_image(description):
 
     return image_source
 
+
 class StartupScreen(Screen):
 
     def __init__(self, **kwargs):
@@ -84,7 +85,6 @@ class FaceRecognitionScreen(Screen):
         global face_rec
         face_rec = facerec.FacialRecognition()
         
-
     # When this screen is entered, the camera will try to find
     # a user registered in the database
     def on_enter(self):
@@ -275,7 +275,7 @@ class NewsIcon(Button):
 
     def set_titles(self):
         # Set titles based on which button was pressed, self.name will pass a source id
-        articles = news.get_articles_by_source(preferredNews, self.name)
+        articles = News.get_articles_by_source(preferredNews, self.name)
         self.titles = articles
 
         # Set the global variable to contain the articles based on what icon was clicked
@@ -322,7 +322,7 @@ class TitleButton(Button):
         super(TitleButton, self).__init__(**kwargs)
 
     def set_article(self):
-        self.article = news.get_article_by_id(self.id)
+        self.article = News.get_article_by_id(self.id)
         global chosenArticle
         chosenArticle = self.article
 
