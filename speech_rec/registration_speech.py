@@ -1,6 +1,6 @@
 from speech_rec import speechrec
 from speech_rec import news_keywords
-from news import news
+from news import News
 
 
 # Class used for user-registration with the help of speech-recognition

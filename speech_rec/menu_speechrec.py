@@ -1,7 +1,7 @@
 from speech_rec import speechrec
 from speech_rec import news_keywords
 from db import smartmirrordb
-from news import news
+from news import News
 
 
 class MenuSpeech(object):
@@ -73,14 +73,14 @@ class MenuSpeech(object):
                 self.news_list.append(news_keywords.time)
 
     # TODO: OLD!!! MAYBE REDUNDANT
-    # Uses the list of preferred news defined in news.py. This list will be
+    # Uses the list of preferred news defined in News.py. This list will be
     # based on the individual preferences of the user. In order to optimize
     # performance during runtime, this check will be done at the activation
     # of the mirror. The loop is constrained by the size of preferred_sources,
     # which is 3. The predefined voice-commands of a news source are appended
     # to news_list if the given news-source is contained in preferred_sources.
     def assign_preferred_news(self):
-        pref_news = news.News.preferred_sources
+        pref_news = News.News.preferred_sources
 
         for source in pref_news:
             if source == 'bbc-news':

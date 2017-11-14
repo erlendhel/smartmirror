@@ -1,6 +1,6 @@
 import os
 import cv2
-import singletonCamera
+from facerec import singletonCamera
 from db import smartmirrordb
 
 # Number of frames to throw away while the camera adjusts to light levels
