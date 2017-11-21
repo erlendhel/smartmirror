@@ -67,7 +67,7 @@
             on_release:
                 app.root.transition = SlideTransition()
                 app.root.transition.direction = "left"
-                app.root.current = "facerec"
+        #        app.root.current = "facerec"
             background_color: 0,0,0,1
                 
         Button:
@@ -76,7 +76,7 @@
             on_release:
                 app.root.transition = SlideTransition()
                 app.root.transition.direction = "left"
-                #app.root.current = "registration"
+                app.root.current = "registration"
             background_color: 0,0,0,1
             
         Button:
@@ -106,33 +106,54 @@
 
 
 <RegistrationScreen>:
+    id: reg
     name: "registration"
     GridLayout:
-#        canvas.after:
-#    		Color:
-#               rgba: 1,0,0,0.5
-#			Rectangle:
-#				size: self.size
-#				pos: self.pos
         size_hint_y: 0.2
         size_hint_x: 0.2
         pos: 0, self.parent.height - self.height
         rows:4
         Label:
+            id:step1
             text: "Step 1"
         Label:
+            id:step2
             text: "Step 2"
         Label:
+            id:step3
             text: "Step 3"
         Label:
+            id:step4
             text: "Step 4"
-    Label:
-        text: "Spell your name one character at a time! \n -'back' to delete last character \n -'done' when finished"
-        font_size: 25
-        pos: self.parent.width * .5 - self.width * .5, self.parent.height / 5
-    Label:
-        text: "FIRST LAST"
-        font_size: 35
+    #Label:
+    #    text: "Spell your name one character at a time! \n -'back' to delete last character \n -'done' when finished"
+    #    font_size: 25
+    #    pos: self.parent.width * .5 - self.width * .5, self.parent.height / 5
+    GridLayout:
+        id: grid
+        rows:3
+        size_hint_x: 0.3
+        size_hint_y: 0.2
+        pos: self.parent.width * .5 - self.width * .5, self.parent.height / 2
+        Label:
+            id: prompt_label
+            text: 'Enter username:'
+            size_hint_x: 0.5
+        TextInput:
+            id: text_input
+            size_hint_y: 0.8
+            size_hint_x: 0.5
+        SaveButton:
+            id: save_button
+            size_hint_y: 0.5
+            size_hint_x: 0.5
+            text: "Save"
+            on_press:
+                self.save_input(text_input.text)
+                reg.create_facecapture_button()
+        
+
+
 <MainScreen>:
 	name: "main"
 	GridLayout:
