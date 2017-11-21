@@ -20,7 +20,7 @@ from weather import Weather
 from news import News
 from gmaps import travel
 from facerec import facerec
-import registration
+import wrapper
 
 
 # TODO: program crashes if there is no internet connection
@@ -34,7 +34,8 @@ face_rec = None
 # TODO: Wrap the global variables above into a class?
 
 # This list contains a list of three preferred(chosen) sources
-preferredNews = news.set_preferred_sources()
+news_list = ['bbc-news', 'espn', 'engadget']
+preferredNews = news.set_preferred_sources(news_list)
 
 # This list of NewsArticles holds articles based on what icon is clicked
 # The title will be displayed in the NewsSourceScreen as buttons
@@ -44,7 +45,8 @@ chosenTitles = list()
 # Is set in TitleButton::set_article()
 chosenArticle = dict()
 
-
+user_id = None
+user = None
 
 # Used in several classes used to set weather image paths
 def set_weather_image(description):
@@ -88,19 +90,9 @@ class FaceRecognitionScreen(Screen):
     # When this screen is entered, the camera will try to find
     # a user registered in the database
     def on_enter(self):
-        face_found = False # Waiting for predict function to be updated to return a bool
         # Start looking for a registered face
-        face_rec.predict()
-        if(face_found):
-            # Inform the user that he/she has sucessfully logged in
-            feedback_text = "Face recognized\n\n Welcome!"
-            self.feedback = Label(text=feedback_text,font_size=40, halign='center')
-            self.ids.facerec_grid.add_widget(self.feedback)
-            # Remove status label
-            self.ids.recognizing_label.text = ""
-            # Go to the main application screen after a small delay
-            Clock.schedule_once(self.go_to_mainscreen, 10)
-        else:
+        face_found = face_rec.predict()
+        if(face_found is False):
             # Inform that no face was found
             feedback_text = "Face not recognized\n\n Returning to start screen"
             self.feedback = Label(text=feedback_text,font_size=40, halign='center')
@@ -109,6 +101,20 @@ class FaceRecognitionScreen(Screen):
             self.ids.recognizing_label.text = ""
             # Go to the startup screen after a small delay
             Clock.schedule_once(self.go_to_startscreen, 10)
+        else:
+            global user_id
+            user_id = face_found
+            
+            print(user_id)
+            
+            # Inform the user that he/she has sucessfully logged in
+            feedback_text = "Face recognized\n\n Welcome!"
+            self.feedback = Label(text=feedback_text,font_size=40, halign='center')
+            self.ids.facerec_grid.add_widget(self.feedback)
+            # Remove status label
+            self.ids.recognizing_label.text = ""
+            # Go to the main application screen after a small delay
+            Clock.schedule_once(self.go_to_mainscreen, 10)
             
 
     def go_to_mainscreen(self, *args):
