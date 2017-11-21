@@ -1,8 +1,12 @@
-import cv2
 import os
+
+import cv2
 import numpy as np
-from db import smartmirrordb
+
 import singletonCamera
+from db import smartmirrordb
+from timer_module import time_module
+
 
 # Tested and compatible with Raspberry Pi 3 and PiCam. Additional setup to get
 # OpenCV to work on Raspberry Pi 3 is needed.
@@ -29,8 +33,10 @@ class FacialRecognition(object):
     subjects = None
     face_recognizer = None
     db = None
+    timer = None
 
     def __init__(self):
+        self.timer = time_module.Timer()
         self.db = smartmirrordb.UserDB()
         # Number of frames to throw away while the camera adjusts to light levels
         self.ramp_frames = 30
@@ -44,9 +50,9 @@ class FacialRecognition(object):
         # no 0'th index of folders (no s1), the space is left blank. The
         # rest of the indexes are linked to s1, s2, s3 etc.
         self.subjects = [""]
-        names = self.db.get_all_names()
-        for name in names:
-            self.subjects.append(name)
+        ids = self.db.get_all_ids()
+        for id in ids:
+            self.subjects.append(id)
         print("Preparing data...")
 
         # 'prepare_training_data' produces two vectors, one for images,
@@ -148,17 +154,21 @@ class FacialRecognition(object):
 
     # This function recognizes the person in image passed
     def predict(self):
-        found = False
-        # This will iterate until a face is found.
-        while found is not True:
+        # Set the timer to 0 and declare the end_time variable which will be added to for each iteration
+        self.timer.restart()
+        end_time = 0
+        # Iterate until an accurate prediction is made, or until the timer runs above 10 seconds.
+        while True:
+            # Break the loop if timer runs over 10 and return false to indicate a timeout
+            if end_time >= 10:
+                return False
             for i in range(self.ramp_frames):
                 temp = self.get_image()
             print('Identifying ...')
             # Get an image from the camera
             camera_capture = self.get_image()
-            # Set the destination for the image, there will always just
-            # be one reference image. This image is overwritten the next
-            # time a prediction must be made.
+            # Set the destination for the image, there will always just be one reference image.
+            # This image is overwritten the next time a prediction must be made.
             file = ""
             if __name__ == '__main__':
                 file = "reference-data/reference.png"
@@ -166,7 +176,8 @@ class FacialRecognition(object):
                 file = "facerec/reference-data/reference.png"
             # Write the image to the path given in 'file'.
             cv2.imwrite(file, camera_capture)
-            
+
+            # Assign the appropriate path to dir in order to save the reference image
             dir = ""
             if __name__ == '__main__':
                 dir = "reference-data/reference.png"
@@ -183,20 +194,21 @@ class FacialRecognition(object):
             if face is not None:
                 # Predict the face using face recognizer
                 label = self.face_recognizer.predict(face)
-                # The 'predict' function of face_recognizer returns
-                # two labels: label[0] contains a index number, the
-                # float given in label[1] gives a reference number of how
-                # successful the prediction is. Checking if a prediction
-                # is below 60 in order to 'log in' a person.
+                # The 'predict' function of face_recognizer returns two labels: label[0] contains a index number, the
+                # float given in label[1] gives a reference number of how successful the prediction is. A lower
+                # number indicates a more accurate prediction. Checking if a prediction is below 60 in order to
+                # 'log in' a person.
                 if label[1] < 60:
                     label_text = self.subjects[label[0]]
-                    print(label_text)
-                    print(label[1])
-                    # Set to true so the loop stops iterating
-                    found = True
+                    print('Print from facerec.py (203): ', label_text)
+                    print('Print from facerec.py (204):', label[1])
+                    return label_text
                 else:
                     print('Unknown')
-                    print(label[1])
+                    # Add the passed time to the end_time variable
+                    end_time = self.timer.get_time_in_seconds()
                 # Get name of respective label returned by face recognizer
             else:
                 print('Unknown')
+                # Add the passed time to the end_time variable
+                end_time = self.timer.get_time_in_seconds()

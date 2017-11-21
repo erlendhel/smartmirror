@@ -55,6 +55,18 @@ class UserDB(object):
             users.append(user[0])
         return users
 
+    def get_all_ids(self):
+        self.cursor.execute(
+            '''
+                SELECT id FROM users
+            '''
+        )
+        id_tuples = self.cursor.fetchall()
+        ids = list()
+        for id in id_tuples:
+            ids.append(id[0])
+        return ids
+
     def get_user_by_id(self, user_id):
         self.cursor.execute(
             '''

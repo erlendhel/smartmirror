@@ -98,7 +98,7 @@ class FaceRecognitionScreen(Screen):
         super(FaceRecognitionScreen, self).__init__(**kwargs)
         global face_rec
         face_rec = facerec.FacialRecognition()
-        
+
     # When this screen is entered, the camera will try to find
     # a user registered in the database
     def on_enter(self):
