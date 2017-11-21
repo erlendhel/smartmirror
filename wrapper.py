@@ -3,12 +3,14 @@
 
 from db import smartmirrordb
 from facerec import register_face
+from facerec import facerec
 from news import News
 from speech_rec import registration_speech
 from speech_rec import register_news
 
 
 class Wrapper(object):
+    fr = None
     db = None
     speech = None
     reg_news = None
@@ -43,24 +45,23 @@ class Wrapper(object):
         news_list = self.reg_news.get_preferred_news()
         self.db.update_news(id, news_list)
 
-    # Function which gets a user from the database and creates a dict with the fieldnames as identifiers.
-    # Assigns to self.user
-    def user_db_to_dict(self, id):
-        user_list = self.db.get_user_by_id(id)
-        # Create a user object as a dict for easy reference with the field names from the database
-        self.user = {
-            'id': user_list[0],
-            'name': user_list[1],
-            'img_path': user_list[2],
-            'news_source_one': user_list[3],
-            'news_source_two': user_list[4],
-            'news_source_three': user_list[5],
-            'destination': user_list[6]
-        }
-
     # Function which returns self.user
-    def get_user(self):
+    def get_user(self, id):
         if self.user is not None:
+            return self.user
+        # If the user is None, we need to assign values to the user from the db
+        else:
+            user_list = self.db.get_user_by_id(id)
+            # Create a user object as as dict for easier reference with the field names from the db
+            self.user = {
+                'id': user_list[0],
+                'name': user_list[1],
+                'img_path': user_list[2],
+                'news_source_one': user_list[3],
+                'news_source_two': user_list[4],
+                'news_source_three': user_list[5],
+                'destination': user_list[6]
+            }
             return self.user
 
     # Function which gets news sources for a specific user given by the id and sets them
@@ -80,13 +81,31 @@ class Wrapper(object):
         articles = self.news.get_articles_by_source(self.news_sources, source_id)
         return articles
 
+    def predict(self):
+        if self.fr is None:
+            self.fr = facerec.FacialRecognition()
+        return self.fr.predict()
+
 # TODO: For testing
 if __name__ == '__main__':
     reg = Wrapper()
-    user = reg.get_user()
-    reg.set_news_sources(1)
-    sources = reg.get_news_sources()
-    print(sources)
-    art = reg.get_articles_by_source('bbc-news')
-    print(art)
+    # reg.predict() uses the predict() function from FacialRecognition class in facerec.py. The predict() function
+    # now times each prediction to ensure the loop doesn't last longer than 10 seconds. If the duration exceeds 10s,
+    # the function will return False. If the function manages to predict a user within the 10 seconds, the USER ID, is
+    # returned for further use. Example of usage below:
 
+    # Get the return value from reg.predict(), which in turn calls fr.predict(). Returns false if it doesn't find
+    # user within 10 seconds, returns user_id if found.
+    id = reg.predict()
+    if id is False:
+        print(id)
+        # Do something ....
+    else:
+        print('User found!', id)
+        # Use ID to get a user from the database, returns a dict with all field names as written in db. See function
+        # get_user() line: 49.
+        user = reg.get_user(id)
+        print(user)
+        # Access different indexes of the dict in user
+        print(user['name'])
+        print(user['img_path'])
