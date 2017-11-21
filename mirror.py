@@ -15,13 +15,16 @@ from kivy.clock import Clock
 from kivy.properties import NumericProperty, StringProperty, ListProperty, DictProperty
 from kivy.uix.image import Image
 from kivy.core.window import Window
+from kivy.uix.textinput import TextInput
 
 from weather import Weather
 from news import News
 from gmaps import travel
 from facerec import facerec
-import registration
+import wrapper
 
+
+registration = wrapper.Wrapper()
 
 # TODO: program crashes if there is no internet connection
 weather = Weather()
@@ -44,6 +47,17 @@ chosenTitles = list()
 # Is set in TitleButton::set_article()
 chosenArticle = dict()
 
+class User():
+    username = str()
+    user_id = int()
+    path_to_faceimg = str()
+
+    def clear_all():
+        username = ""
+        user_id = None
+        path_to_faceimg = ""
+
+user = User()
 
 
 # Used in several classes used to set weather image paths
@@ -88,7 +102,7 @@ class FaceRecognitionScreen(Screen):
     # When this screen is entered, the camera will try to find
     # a user registered in the database
     def on_enter(self):
-        face_found = False # Waiting for predict function to be updated to return a bool
+        face_found = True # Waiting for predict function to be updated to return a bool
         # Start looking for a registered face
         face_rec.predict()
         if(face_found):
@@ -129,6 +143,63 @@ class FaceRecognitionScreen(Screen):
 
 
 class RegistrationScreen(Screen):
+    user = User()
+    
+    
+    def __init__(self, **kwargs):
+        super(RegistrationScreen, self).__init__(**kwargs)
+        
+
+    def on_enter(self):
+        self.ids.text_input.focus = True
+        self.ids.step1.font_size = 25
+
+    def create_facecapture_button(self):
+        self.ids.grid.clear_widgets()
+        self.ids.step1.font_size = 15
+        self.ids.step2.font_size = 25
+        self.ids.grid.add_widget(StartFaceCaptureButton(size_hint_y=0.2,
+                                                        size_hint_x=0.2,
+                                                        text="Press to start capturing images of face",
+                                                        font_size=25,
+                                                        background_color=[0,0,0,1]
+                                                        ))
+    
+        
+
+class SaveButton(Button):
+    
+    
+    def __init__(self, **kwargs):
+        super(SaveButton, self).__init__(**kwargs)
+        
+    def save_input(self, username_input):
+        user.username = username_input
+        user_id = registration.set_user_name(username_input)
+        user.user_id = user_id
+
+class StartFaceCaptureButton(Button):
+    counter = 0
+    
+    def __init__(self, **kwargs):
+        super(StartFaceCaptureButton, self).__init__(**kwargs)
+
+    def on_release(self):
+        self.text = "Capturing face..."  
+        self.disabled = True
+        
+        # Go wait a few seconds before images are taken to ensure label is updated
+        Clock.schedule_once(self.start_capturing_face, 5)
+        
+
+    def start_capturing_face(self, *args):
+        if self.counter == 0:
+            registration.add_user_face(user.user_id)
+            self.text = "Face captured!"
+        self.counter = self.counter + 1
+
+
+class TestFaceImageButton(Button):
     pass
 
 
