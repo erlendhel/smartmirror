@@ -253,6 +253,8 @@ class MainScreen(Screen):
             self.ids.icon_container.set_news_icons()
             new_user_logged_in = False
 
+        self.ids.nav_label.set_destination_from_db()
+
 class NavigationGrid(GridLayout):
     pass
 
@@ -274,6 +276,15 @@ class NavLabel(Label):
         # Set the displayed text
         self.text = self.travel_dict['duration'] + " to " + destination
 
+    def set_destination_from_db(self):
+        self.travel_dict = travel.get_travel_time(active_user['destination'], "driving")
+        self.travel_mode = self.travel_dict['travel_mode']
+
+        # Get first word of string, quick fix of long destination name. TODO: edit
+        destination = self.travel_dict['destination_name'].split(' ', 1)[0]
+
+        # Set the displayed text
+        self.text = self.travel_dict['duration'] + " to " + destination
 
 class ClockLabel(Label):
     clock = StringProperty()
