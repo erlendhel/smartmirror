@@ -73,6 +73,18 @@ class Wrapper(object):
         for source in sources:
             self.news_sources.append(source.source)
 
+    # Function which sets the destination the user prefers
+    def set_destination(self, destination):
+        self.db.update_destination(destination)
+
+    # Allowed keywords:
+    # 'bicycling'
+    # 'driving'
+    # 'transit'
+    # 'walking'
+    def set_travel_type(self, travel_type):
+        self.db.update_travel_type(travel_type)
+
     # Function which returns self.news_sources
     def get_news_sources(self):
         return self.news_sources
