@@ -19,7 +19,17 @@ class UserDB(object):
                     news_source_two TEXT,
                     news_source_three TEXT,
                     destination TEXT
+                    travel_type TEXT
                 )
+            '''
+        )
+        self.db.commit()
+
+    def add_travel_type(self):
+        self.cursor.execute(
+            '''
+                ALTER TABLE users
+                ADD COLUMN travel_type TEXT
             '''
         )
         self.db.commit()
@@ -179,3 +189,32 @@ class UserDB(object):
             ''', (source_one, source_two, source_three, id)
         )
         self.db.commit()
+
+    def update_destination(self, id, destination):
+        self.cursor.execute(
+            '''
+                UPDATE users
+                SET
+                    destination = ?
+                WHERE id = ?
+            ''', (destination, id)
+        )
+        self.db.commit()
+
+    def update_travel_type(self, id, type):
+        self.cursor.execute(
+            '''
+                UPDATE users
+                SET
+                    travel_type = ?
+                WHERE id = ?
+            ''', (type, id)
+        )
+        self.db.commit()
+
+db = UserDB()
+db.add_travel_type()
+db.update_destination(1, 'Kongsberg')
+print(db.get_user_by_id(1))
+db.update_travel_type(1, 'bicycling')
+print(db.get_user_by_id(1))
