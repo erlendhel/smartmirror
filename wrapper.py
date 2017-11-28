@@ -52,6 +52,7 @@ class Wrapper(object):
         # If the user is None, we need to assign values to the user from the db
         else:
             user_list = self.db.get_user_by_id(id)
+            print(user_list)
             # Create a user object as as dict for easier reference with the field names from the db
             self.user = {
                 'id': user_list[0],
@@ -80,6 +81,10 @@ class Wrapper(object):
     def get_articles_by_source(self, source_id):
         articles = self.news.get_articles_by_source(self.news_sources, source_id)
         return articles
+    
+    def get_article_by_id(self, article_id):
+        article = self.news.get_article_by_id(article_id)
+        return article
 
     def predict(self):
         if self.fr is None:
@@ -109,3 +114,6 @@ if __name__ == '__main__':
         # Access different indexes of the dict in user
         print(user['name'])
         print(user['img_path'])
+        print(user['news_source_one'])
+        print(user['news_source_two'])
+        print(user['news_source_three'])

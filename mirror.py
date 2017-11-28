@@ -1,6 +1,8 @@
 from time import ctime, time
 from datetime import datetime
 from dateutil import parser
+import serial
+from serial import SerialException
 
 import kivy
 kivy.require('1.10.0')
@@ -24,21 +26,19 @@ from facerec import facerec
 import wrapper
 
 
-registration = wrapper.Wrapper()
-
 # TODO: program crashes if there is no internet connection
 weather = Weather()
 news = News.News()
 travel = travel.Travel()
+registration = wrapper.Wrapper()
+
 
 # Will be initialized init function of FaceRecognitionScreen
 face_rec = None
 
-# TODO: Wrap the global variables above into a class?
-
-# This list contains a list of three preferred(chosen) sources
-news_list = ['bbc-news', 'espn', 'engadget']
-preferredNews = news.set_preferred_sources(news_list)
+# This list contains a list of three preferred(chosen) sources.
+# Fetched when login in by adding the news soruces from the user database
+preferredNews = None  
 
 # This list of NewsArticles holds articles based on what icon is clicked
 # The title will be displayed in the NewsSourceScreen as buttons
@@ -53,13 +53,32 @@ class User():
     user_id = int()
     path_to_faceimg = str()
 
-    def clear_all():
+    def clear_all(self):
         username = ""
         user_id = None
         path_to_faceimg = ""
 
-user = User()
+class Arduino():
+    serial_connection = None
+    connected = False
+    
+    def __init__(self):
+        try:
+            self.serial_connection = serial.Serial('/dev/ttyACM0', 9600)
+            self.connected = True
+        except SerialException:
+            print('Could not open port to Arduino')
 
+    def is_connected(self):
+        return self.connected
+
+    def write(self, command):
+        self.serial_connection.write(command)
+
+arduino = Arduino()
+user = User()
+active_user = None
+new_user_logged_in = False
 
 # Used in several classes used to set weather image paths
 def set_weather_image(description):
@@ -105,8 +124,8 @@ class FaceRecognitionScreen(Screen):
     def on_enter(self):
 
         # Start looking for a registered face
-        face_found = face_rec.predict()
-        if(face_found is False):
+        id = face_rec.predict()
+        if(id is False):
             # Inform that no face was found
             feedback_text = "Face not recognized\n\n Returning to start screen"
             self.feedback = Label(text=feedback_text,font_size=40, halign='center')
@@ -116,13 +135,23 @@ class FaceRecognitionScreen(Screen):
             # Go to the startup screen after a small delay
             Clock.schedule_once(self.go_to_startscreen, 10)
         else:
-            global user_id
-            user_id = face_found
+            global active_user
+            active_user = registration.get_user(id)
+            print("User " + active_user['name'] + " logged in!")
             
-            print(user_id)
+            news_list = [active_user['news_source_one'],active_user['news_source_two'],active_user['news_source_three']]
+            global preferredNews
+            preferredNews = news.set_preferred_sources(news_list)
+
+            # Used to set the news sources for the active user just once (first time entering main screen)
+            global new_user_logged_in
+            new_user_logged_in = True
+
+            if arduino.is_connected() is True:
+                arduino.write(b'6')
             
             # Inform the user that he/she has sucessfully logged in
-            feedback_text = "Face recognized\n\n Welcome!"
+            feedback_text = "Face recognized\n\n Welcome " + active_user['name'] + "!"
             self.feedback = Label(text=feedback_text,font_size=40, halign='center')
             self.ids.facerec_grid.add_widget(self.feedback)
             # Remove status label
@@ -214,8 +243,15 @@ class FaceRegistrationScreen(Screen):
 
 
 class MainScreen(Screen):
-    pass
+    
+    def __init__(self, **kwargs):
+        super(MainScreen, self).__init__(**kwargs)
 
+    def on_enter(self):
+        global new_user_logged_in
+        if new_user_logged_in is True:
+            self.ids.icon_container.set_news_icons()
+            new_user_logged_in = False
 
 class NavigationGrid(GridLayout):
     pass
@@ -314,6 +350,10 @@ class NewsButton(Button):
         # These ids will be used to identify the different icons on the main screen
         for x in range(len(preferredNews)):
             self.preferredNewsIDs.append(preferredNews[x].source['source_id'])
+            
+    def set_news_icons(self):
+        for x in range(len(preferredNews)):
+            self.preferredNewsIDs.append(preferredNews[x].source['source_id'])
 
 
 class SourceLayout(GridLayout):
@@ -321,12 +361,32 @@ class SourceLayout(GridLayout):
 
     def __init__(self, **kwargs):
         super(SourceLayout, self).__init__(**kwargs)
-
-        # Get the ids of the chosen preferred sources
-        # These ids will be used to identify the different icons on the main screen
-        for x in range(len(preferredNews)):
+        
+        '''for x in range(len(preferredNews)):
+            print(x)
             self.preferredNewsIDs.append(preferredNews[x].source['source_id'])
+        '''
+        
 
+
+    # Get the ids of the chosen preferred sources fetched from the user DB
+    # These ids will be used to identify the different icons on the main screen
+    # Called when entering main screen
+    def set_news_icons(self):
+        print("Lenght of pref_news: ")
+        print(len(preferredNews))
+        for x in range(len(preferredNews)):
+            self.preferredNewsIDs.insert(x,preferredNews[x].source['source_id'])
+            print(x)
+            print(preferredNews[x].source['name'])
+            button_background = "icons/news/" + str(self.preferredNewsIDs[x]) + ".png"
+            self.add_widget(NewsIcon(background_normal=(button_background),
+                                     background_down=(button_background),
+                                     name=preferredNews[x].source['source_id']
+                                     ))
+
+            
+        
 
 class NewModule(Button):
     pass
@@ -346,18 +406,24 @@ class BackButton(Button):
 
 class NewsIcon(Button):
     titles = ListProperty()
+    name = StringProperty()
 
     def __init__(self, **kwargs):
         super(NewsIcon, self).__init__(**kwargs)
+        
 
     def set_titles(self):
         # Set titles based on which button was pressed, self.name will pass a source id
-        articles = News.get_articles_by_source(preferredNews, self.name)
+        registration.set_news_sources(active_user['id'])
+        
+        articles = registration.get_articles_by_source(self.name)
         self.titles = articles
 
         # Set the global variable to contain the articles based on what icon was clicked
         global chosenTitles
         chosenTitles = articles
+    
+    
 
 
 class NewsSourceScreen(Screen):
@@ -399,7 +465,7 @@ class TitleButton(Button):
         super(TitleButton, self).__init__(**kwargs)
 
     def set_article(self):
-        self.article = News.get_article_by_id(self.id)
+        self.article = registration.get_article_by_id(self.id)
         global chosenArticle
         chosenArticle = self.article
 
