@@ -1,5 +1,6 @@
 import googlemaps
 import requests
+import urllib
 
 
 class Travel(object):
@@ -11,23 +12,29 @@ class Travel(object):
 
     def __init__(self):
         self.google_api = googlemaps.Client(key='AIzaSyBfn7FdXwhrzcDaVBPbuE00t71r7cqG36Y')
-        self.geo_request = requests.get(self.freegeoip)
-        self.geo_json = self.geo_request.json()
+        try:
+            self.geo_request = requests.get(self.freegeoip)
+            self.geo_json = self.geo_request.json()
+        except requests.exceptions.RequestException:
+            print('SHIT')
+            self.geo_request = None
 
     def get_travel_time(self, destination, travel_mode, language = "en"):
-        distance_matrix = self.__get_distance_matrix(destination, travel_mode, language)
-        places = self.__get_destination(destination)
+        if self.geo_json is not None:
+            distance_matrix = self.__get_distance_matrix(destination, travel_mode, language)
+            places = self.__get_destination(destination)
+            travel_response = {
+                'origin': distance_matrix['origin_addresses'][0],
+                'destination_address': distance_matrix['destination_addresses'][0],
+                'destination_name': places['results'][0]['name'],
+                'distance': distance_matrix['rows'][0]['elements'][0]['distance']['text'],
+                'duration': distance_matrix['rows'][0]['elements'][0]['duration']['text'],
+                'travel_mode': travel_mode
+            }
 
-        travel_response = {
-            'origin': distance_matrix['origin_addresses'][0],
-            'destination_address': distance_matrix['destination_addresses'][0],
-            'destination_name': places['results'][0]['name'],
-            'distance': distance_matrix['rows'][0]['elements'][0]['distance']['text'],
-            'duration': distance_matrix['rows'][0]['elements'][0]['duration']['text'],
-            'travel_mode': travel_mode
-        }
-
-        return travel_response
+            return travel_response
+        else:
+            return None
 
     # Internal use
     def __get_destination(self, destination):
@@ -42,8 +49,4 @@ class Travel(object):
                                                           mode=travel_mode,
                                                           avoid=None,
                                                           language=language)
-
         return distance_matrix
-
-
-
