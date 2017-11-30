@@ -18,8 +18,9 @@ from kivy.properties import NumericProperty, StringProperty, ListProperty, DictP
 from kivy.uix.image import Image
 from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
-
 from kivy.config import Config
+
+# Set proper window size to fit iPad dimensions
 Config.set('graphics', 'resizable',0)
 Window.size = (int(600 / 1.13) ,int(800 / 1.13)) # (int(600 / 1.11) ,int(800 / 1.11)) => b = 15cm, l = 20cm
 
@@ -115,8 +116,11 @@ class StartupScreen(Screen):
     def __init__(self, **kwargs):
         super(StartupScreen, self).__init__(**kwargs)
 
+    def on_pre_enter(self):
+        print("Loading startup screen")
+
     def on_enter(self):
-        print("Entering StartupScreen")
+        print("Entered startup screen")
                
 
 class FaceRecognitionScreen(Screen):
@@ -130,7 +134,7 @@ class FaceRecognitionScreen(Screen):
     # When this screen is entered, the camera will try to find
     # a user registered in the database
     def on_enter(self):
-
+        print("Entered face recognition screen")
         # Start looking for a registered face
         user_id = face_rec.predict()
         if(user_id is False):
@@ -151,6 +155,7 @@ class FaceRecognitionScreen(Screen):
             global preferredNews
             preferredNews.clear()
             preferredNews = news.set_preferred_sources(news_list)
+            
 
             # Used to set the news sources for the active user just once (first time entering main screen)
             global new_user_logged_in
@@ -175,6 +180,7 @@ class FaceRecognitionScreen(Screen):
         self.ids.facerec_grid.remove_widget(self.feedback)
         # Add status label so it will apear next time trying to log in
         self.ids.recognizing_label.text = "Recognizing face..."
+        registration.set_news_sources(active_user['id'])
         
 
     def go_to_startscreen(self, *args):
@@ -257,12 +263,15 @@ class MainScreen(Screen):
         super(MainScreen, self).__init__(**kwargs)
 
     def on_pre_enter(self):
-        print("Entering MainScreenn")
+        print("Loading main screen")
         global new_user_logged_in
         if new_user_logged_in is True:
             self.ids.icon_container.set_news_icons()
             self.ids.nav_label.set_destination_from_db()
             new_user_logged_in = False
+
+    def on_enter(self):
+        print("Entered main screen")
 
         
 
@@ -368,7 +377,6 @@ class NewsButton(Button):
 
     def __init__(self, **kwargs):
         super(NewsButton, self).__init__(**kwargs)
-
         # Get the ids of the chosen preferred sources
         # These ids will be used to identify the different icons on the main screen
         for x in range(len(preferredNews)):
@@ -423,7 +431,13 @@ class NewsScreen(Screen):
 
 
 class BackButton(Button):
-    pass
+
+    def __init__(self, **kwargs):
+        super(BackButton, self).__init__(**kwargs)
+        print("Back button created")
+
+    def on_press(self):
+        print("Back button was pressed")
 
 
 class NewsIcon(Button):
@@ -436,14 +450,13 @@ class NewsIcon(Button):
 
     def set_titles(self):
         # Set titles based on which button was pressed, self.name will pass a source id
-        registration.set_news_sources(active_user['id'])
-        
         articles = registration.get_articles_by_source(self.name)
         self.titles = articles
 
         # Set the global variable to contain the articles based on what icon was clicked
         global chosenTitles
         chosenTitles = articles
+
     
     
 
@@ -455,7 +468,7 @@ class NewsSourceScreen(Screen):
     # Before this function runs, NewsIcon::set_titles() has appended
     # the proper titles to the global list variable chosenTitles
     def on_pre_enter(self):
-        print("Entering NewsSourceScreen")
+        #print("Loading news source screen")
         # Set the titles to be displayed (dependent on chosen source)
         global chosenTitles
         self.titles = chosenTitles
@@ -480,17 +493,25 @@ class NewsSourceScreen(Screen):
         # Add a button to go back to main screen
         self.ids.grid.add_widget(BackButton())
 
+    def on_enter(self):
+        #print("Entered news source screen")
+        pass
 
 class TitleButton(Button):
     article = DictProperty()
 
     def __init__(self, **kwargs):
         super(TitleButton, self).__init__(**kwargs)
+        print("Created title button with id: " + str(self.id))
 
     def set_article(self):
+        print("Loading article with id: " + str(self.id))
         self.article = registration.get_article_by_id(self.id)
         global chosenArticle
         chosenArticle = self.article
+
+    def on_press(self):
+        print(str(self.id) + " was pressed")
 
 
 class NewsArticleScreen(Screen):
@@ -504,6 +525,7 @@ class NewsArticleScreen(Screen):
     # has set the global variable chosenArticle to contain
     # the correct article data based on what title is pushed
     def on_pre_enter(self):
+        #print("Loading news article screen") 
         self.article = chosenArticle
         self.ids.title.text = self.article['title']
 
@@ -519,8 +541,13 @@ class NewsArticleScreen(Screen):
             published = "N/A"
 
         self.ids.published.text = "Published at: " + published
-        self.ids.description.text = self.article['description']
+        if self.article['description'] is not None:
+            self.ids.description.text = self.article['description']
 
+    def on_enter(self):
+        #print("Entered news article screen for article for article with title '"
+        #     + str(self.article['title']) + "'")
+        pass
 
 class TitleLabel(Label):
     pass
@@ -535,9 +562,18 @@ class DescriptionLabel(Label):
 
 
 class WeatherScreen(Screen):
-    pass
+    
+    def __init__(self, **kwargs):
+        super(WeatherScreen, self).__init__(**kwargs)
 
 
+    def on_pre_enter(self):
+        print("Loading weather screen")
+
+    def on_enter(self):
+        print("Entered weather screen")
+        
+    
 class PresentWeatherLayout(GridLayout):
     temperature = StringProperty()
     humidity = StringProperty()

@@ -34,7 +34,7 @@
     background_color: 0,0,0,1
     font_size: 19
 
-    on_release:
+    on_press:
         self.set_article()
         app.root.transition = SlideTransition()
 		app.root.transition.direction = "left"
@@ -44,10 +44,17 @@
     font_name: "fonts/Hattori_Hanzo.otf"
 
 <BackButton>:
-    on_release:
-        app.root.current = "main"
+    on_press:
+        app.root.transition = SlideTransition()
         app.root.transition.direction = "right"
-        app.root.transition = SwapTransition()
+        app.root.current = "main"
+
+    canvas.after:
+        Color:
+            rgba: 1,0,0,0.5
+        Rectangle:
+            size: self.size
+            pos: self.pos
     pos: 0,0
     text: "<"
     background_color: 0,0,0,1
@@ -207,8 +214,10 @@
             size_hint_y: 0.2
             background_color: 0,0,0,1
             on_release:
-                app.root.current = "weather"
                 app.root.transition = SlideTransition()
+                app.root.transition.direction = 'left'
+                app.root.current = "weather"
+                
 
             Image:
                 id: image
@@ -258,9 +267,10 @@
                     pos: self.parent.x + 10, self.parent.y + (self.parent.height / 4)
             LogoutButton:
                 
-                on_release: 
+                on_release:
+                    app.root.transition = SwapTransition()
                     app.root.current = "startup"
-                    app.root.transition = SlideTransition()
+                    
                 background_color: 0,0,0,1
 
                 font_size: 50

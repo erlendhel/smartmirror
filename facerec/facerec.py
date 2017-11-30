@@ -200,8 +200,8 @@ class FacialRecognition(object):
                 # 'log in' a person.
                 if label[1] < 60:
                     label_text = self.subjects[label[0]]
-                    print('Print from facerec.py (203): ', label_text)
-                    print('Print from facerec.py (204):', label[1])
+                    print('Facerec module found face with id: ', label_text)
+                    print('Facerec accuracy:', label[1])
                     return label_text
                 else:
                     print('Unknown')
