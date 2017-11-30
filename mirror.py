@@ -120,8 +120,7 @@ class StartupScreen(Screen):
                
 
 class FaceRecognitionScreen(Screen):
-    
-    
+
     def __init__(self, **kwargs):
         super(FaceRecognitionScreen, self).__init__(**kwargs)
         global face_rec
@@ -133,7 +132,7 @@ class FaceRecognitionScreen(Screen):
 
         # Start looking for a registered face
         user_id = face_rec.predict()
-        if(user_id is False):
+        if user_id is False:
             # Inform that no face was found
             feedback_text = "Face not recognized\n\n Returning to start screen"
             self.feedback = Label(text=feedback_text,font_size=40, halign='center')
