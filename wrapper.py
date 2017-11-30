@@ -47,10 +47,7 @@ class Wrapper(object):
 
     # Function which returns self.user
     def get_user(self, id):
-        print('id 1 ', id)
         user_list = self.db.get_user_by_id(id)
-        print('id 2', id)
-        print(user_list)
         # Create a user object as as dict for easier reference with the field names from the db
         self.user = {
             'id': user_list[0],
