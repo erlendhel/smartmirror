@@ -18,7 +18,7 @@ class UserDB(object):
                     news_source_one TEXT,
                     news_source_two TEXT,
                     news_source_three TEXT,
-                    destination TEXT
+                    destination TEXT,
                     travel_type TEXT
                 )
             '''
@@ -38,7 +38,7 @@ class UserDB(object):
         self.db = sqlite3.connect(os.path.dirname(os.path.abspath(__file__)) + '/smartmirrordb')
 
     def register_user(self, name, img_path, news_source_one,
-                      news_source_two, news_source_three, destination):
+                      news_source_two, news_source_three, destination, travel_type):
         self.cursor.execute(
             '''
                 INSERT INTO users(
@@ -47,9 +47,10 @@ class UserDB(object):
                     news_source_one,
                     news_source_two,
                     news_source_three,
-                    destination)
-                VALUES(?, ?, ?, ?, ?, ?)
-            ''', (name, img_path, news_source_one, news_source_two, news_source_three, destination)
+                    destination,
+                    travel_type)
+                VALUES(?, ?, ?, ?, ?, ?, ?)
+            ''', (name, img_path, news_source_one, news_source_two, news_source_three, destination, travel_type)
         )
         self.db.commit()
 
@@ -212,9 +213,4 @@ class UserDB(object):
         )
         self.db.commit()
 
-db = UserDB()
-db.add_travel_type()
-db.update_destination(1, 'Kongsberg')
-print(db.get_user_by_id(1))
-db.update_travel_type(1, 'bicycling')
-print(db.get_user_by_id(1))
+user = UserDB()

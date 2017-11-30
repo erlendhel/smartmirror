@@ -19,6 +19,10 @@ from kivy.uix.image import Image
 from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
 
+from kivy.config import Config
+Config.set('graphics', 'resizable',0)
+Window.size = (int(600 / 1.13) ,int(800 / 1.13)) # (int(600 / 1.11) ,int(800 / 1.11)) => b = 15cm, l = 20cm
+
 from weather import Weather
 from news import News
 from gmaps import travel
@@ -38,7 +42,7 @@ face_rec = None
 
 # This list contains a list of three preferred(chosen) sources.
 # Fetched when login in by adding the news soruces from the user database
-preferredNews = None  
+preferredNews = list()  
 
 # This list of NewsArticles holds articles based on what icon is clicked
 # The title will be displayed in the NewsSourceScreen as buttons
@@ -82,6 +86,7 @@ new_user_logged_in = False
 
 # Used in several classes used to set weather image paths
 def set_weather_image(description):
+    print("Setting weather description image(s)")
     length = len(description)
 
     # Because of the many different types of weather descriptions
@@ -109,6 +114,9 @@ class StartupScreen(Screen):
 
     def __init__(self, **kwargs):
         super(StartupScreen, self).__init__(**kwargs)
+
+    def on_enter(self):
+        print("Entering StartupScreen")
                
 
 class FaceRecognitionScreen(Screen):
@@ -124,8 +132,8 @@ class FaceRecognitionScreen(Screen):
     def on_enter(self):
 
         # Start looking for a registered face
-        id = face_rec.predict()
-        if(id is False):
+        user_id = face_rec.predict()
+        if(user_id is False):
             # Inform that no face was found
             feedback_text = "Face not recognized\n\n Returning to start screen"
             self.feedback = Label(text=feedback_text,font_size=40, halign='center')
@@ -136,11 +144,12 @@ class FaceRecognitionScreen(Screen):
             Clock.schedule_once(self.go_to_startscreen, 10)
         else:
             global active_user
-            active_user = registration.get_user(id)
+            active_user = registration.get_user(user_id)
             print("User " + active_user['name'] + " logged in!")
             
             news_list = [active_user['news_source_one'],active_user['news_source_two'],active_user['news_source_three']]
             global preferredNews
+            preferredNews.clear()
             preferredNews = news.set_preferred_sources(news_list)
 
             # Used to set the news sources for the active user just once (first time entering main screen)
@@ -247,13 +256,15 @@ class MainScreen(Screen):
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
 
-    def on_enter(self):
+    def on_pre_enter(self):
+        print("Entering MainScreenn")
         global new_user_logged_in
         if new_user_logged_in is True:
             self.ids.icon_container.set_news_icons()
+            self.ids.nav_label.set_destination_from_db()
             new_user_logged_in = False
 
-        self.ids.nav_label.set_destination_from_db()
+        
 
 class NavigationGrid(GridLayout):
     pass
@@ -277,7 +288,7 @@ class NavLabel(Label):
         self.text = self.travel_dict['duration'] + " to " + destination
 
     def set_destination_from_db(self):
-        self.travel_dict = travel.get_travel_time(active_user['destination'], "driving")
+        self.travel_dict = travel.get_travel_time(active_user['destination'], active_user['travel_type'])
         self.travel_mode = self.travel_dict['travel_mode']
 
         # Get first word of string, quick fix of long destination name. TODO: edit
@@ -335,6 +346,7 @@ class WeatherButton(Button):
         Clock.schedule_interval(self.update_temperature, 600)
 
     def update_temperature(self, *args):
+        print("Updating temperature data")
         weather.updateCurrentData()
 
         # Convert to int before string to cut out decimal points
@@ -384,12 +396,11 @@ class SourceLayout(GridLayout):
     # These ids will be used to identify the different icons on the main screen
     # Called when entering main screen
     def set_news_icons(self):
-        print("Lenght of pref_news: ")
-        print(len(preferredNews))
+        print("Setting " + active_user['name'] + "'s favorite news sources")
+        self.clear_widgets()
+        self.preferredNewsIDs.clear()
         for x in range(len(preferredNews)):
             self.preferredNewsIDs.insert(x,preferredNews[x].source['source_id'])
-            print(x)
-            print(preferredNews[x].source['name'])
             button_background = "icons/news/" + str(self.preferredNewsIDs[x]) + ".png"
             self.add_widget(NewsIcon(background_normal=(button_background),
                                      background_down=(button_background),
@@ -444,6 +455,7 @@ class NewsSourceScreen(Screen):
     # Before this function runs, NewsIcon::set_titles() has appended
     # the proper titles to the global list variable chosenTitles
     def on_pre_enter(self):
+        print("Entering NewsSourceScreen")
         # Set the titles to be displayed (dependent on chosen source)
         global chosenTitles
         self.titles = chosenTitles
@@ -539,7 +551,8 @@ class PresentWeatherLayout(GridLayout):
         self.set_data()
         Clock.schedule_interval(self.update_current_weather, 600)
 
-    def update_current_weather(self):
+    def update_current_weather(self, *args):
+        print("Updating current weather")
         weather.updateCurrentData()
         self.set_data()
 
@@ -592,6 +605,10 @@ class SettingScreen(Screen):
     pass
 
 
+class LogoutButton(Button):
+    pass
+
+    
 class ScreenManagement(ScreenManager):
     pass
 

@@ -29,7 +29,7 @@ class Wrapper(object):
     def set_user_name(self, name):  # TODO: TAKES ARGUMENT FOR TESTING ONLY
         # name = self.speech.set_name() TODO: COMMENTED FOR TESTING ONLY
         print(name)  # TODO: FOR TESTING
-        self.db.register_user(name, None, None, None, None, None)
+        self.db.register_user(name, None, None, None, None, None, None)
         id = self.db.get_max_id()
         return id
 
@@ -47,23 +47,22 @@ class Wrapper(object):
 
     # Function which returns self.user
     def get_user(self, id):
-        if self.user is not None:
-            return self.user
-        # If the user is None, we need to assign values to the user from the db
-        else:
-            user_list = self.db.get_user_by_id(id)
-            print(user_list)
-            # Create a user object as as dict for easier reference with the field names from the db
-            self.user = {
-                'id': user_list[0],
-                'name': user_list[1],
-                'img_path': user_list[2],
-                'news_source_one': user_list[3],
-                'news_source_two': user_list[4],
-                'news_source_three': user_list[5],
-                'destination': user_list[6]
+        print('id 1 ', id)
+        user_list = self.db.get_user_by_id(id)
+        print('id 2', id)
+        print(user_list)
+        # Create a user object as as dict for easier reference with the field names from the db
+        self.user = {
+            'id': user_list[0],
+            'name': user_list[1],
+            'img_path': user_list[2],
+            'news_source_one': user_list[3],
+            'news_source_two': user_list[4],
+            'news_source_three': user_list[5],
+            'destination': user_list[6],
+            'travel_type': user_list[7]
             }
-            return self.user
+        return self.user
 
     # Function which gets news sources for a specific user given by the id and sets them
     # to self.news_sources
@@ -72,18 +71,6 @@ class Wrapper(object):
         sources = self.news.set_preferred_sources(placeholder_sources)
         for source in sources:
             self.news_sources.append(source.source)
-
-    # Function which sets the destination the user prefers
-    def set_destination(self, destination):
-        self.db.update_destination(destination)
-
-    # Allowed keywords:
-    # 'bicycling'
-    # 'driving'
-    # 'transit'
-    # 'walking'
-    def set_travel_type(self, travel_type):
-        self.db.update_travel_type(travel_type)
 
     # Function which returns self.news_sources
     def get_news_sources(self):
@@ -102,10 +89,17 @@ class Wrapper(object):
         if self.fr is None:
             self.fr = facerec.FacialRecognition()
         return self.fr.predict()
+    
+    def update_destination(self, destination):
+        self.db.set_destination(destination)
+    
+    def update_travel_type(self, travel_type):
+        self.db.set_travel_type(travel_type)
 
 # TODO: For testing
 if __name__ == '__main__':
-    reg = Wrapper()
+
+    '''reg = Wrapper()
     # reg.predict() uses the predict() function from FacialRecognition class in facerec.py. The predict() function
     # now times each prediction to ensure the loop doesn't last longer than 10 seconds. If the duration exceeds 10s,
     # the function will return False. If the function manages to predict a user within the 10 seconds, the USER ID, is
@@ -128,4 +122,4 @@ if __name__ == '__main__':
         print(user['img_path'])
         print(user['news_source_one'])
         print(user['news_source_two'])
-        print(user['news_source_three'])
+        print(user['news_source_three'])'''

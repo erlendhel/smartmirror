@@ -53,6 +53,8 @@
     background_color: 0,0,0,1
     font_size:50
 
+        
+
 <NewsIcon>:
     on_release:
         self.set_titles()
@@ -231,58 +233,45 @@
             padding: 20
             spacing: 10
             size_hint_y:0.2
-
-            #NewsIcon:
-            #    name: str(icon_container.preferredNewsIDs[0])
-            #    id: icon_container.preferredNewsIDs[0]
-            #    background_normal: "icons/news/" + self.name + ".png"
-            #    background_down: "icons/news/" + self.name + ".png"
-            #    on_release:
-            #        self.set_titles()
-            #        app.root.transition = SlideTransition()
-            #        app.root.transition.direction = 'left'
-            #        app.root.current = "source"
-            #NewsIcon:
-            #    name: str(icon_container.preferredNewsIDs[1])
-            #    id: icon_container.preferredNewsIDs[1]
-            #    background_normal: "icons/news/" + self.name + ".png"
-            #    background_down: "icons/news/" + self.name + ".png"
-            #    on_release:
-            #        self.set_titles()
-            #        app.root.transition = SlideTransition()
-            #        app.root.transition.direction = 'left'
-            #        app.root.current = "source"
-            #NewsIcon:
-            #    name: str(icon_container.preferredNewsIDs[2])
-            #    id: icon_container.preferredNewsIDs[2]
-            #    background_normal: "icons/news/" + self.name + ".png"
-            #    background_down: "icons/news/" + self.name + ".png"
-            #    on_release:
-            #        self.set_titles()
-            #        app.root.transition = SlideTransition()
-            #        app.root.transition.direction = 'left'
-            #        app.root.current = "source"
-
+            
 		NewModule:
 		    size_hint_y: 0.2
 		    background_color: 0,0,0,1
 
+        GridLayout:
+            id: bottom_grid
+            cols: 2
+            size_hint_y: 0.1
+            SettingButton:
+                
+                on_release: 
+                    app.root.current = "settings"
+                    app.root.transition = SlideTransition()
+                background_color: 0,0,0,1
 
-		SettingButton:
-		    size_hint_y: 0.1
-			on_release: 
-				app.root.current = "settings"
-				app.root.transition = SlideTransition()
-			background_color: 0,0,0,1
+                font_size: 50
+                Image:
+                    source: "icons/cogwheel.png"
+                    allow_stretch: True
+                    size: 30,30
+                    keep_ratio: False
+                    pos: self.parent.x + 10, self.parent.y + (self.parent.height / 4)
+            LogoutButton:
+                
+                on_release: 
+                    app.root.current = "startup"
+                    app.root.transition = SlideTransition()
+                background_color: 0,0,0,1
 
-			font_size: 50
-			Image:
-			    source: "icons/cogwheel.png"
-			    allow_stretch: True
-			    size: 30,30
-				keep_ratio: False
-				pos: self.parent.x + 10, self.parent.y + (self.parent.height / 4)
+                font_size: 50
+                Image:
+                    source: "icons/logout.png"
+                    allow_stretch: True
+                    size: 30,30
+                    keep_ratio: False
+                    pos: bottom_grid.width - self.width - 10, self.parent.y + (self.parent.height / 4)
 
+    
 
 <WeatherScreen>:
 	name: "weather"
