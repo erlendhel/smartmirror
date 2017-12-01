@@ -20,6 +20,20 @@ class MenuSpeech(object):
         if command == 'Wake up mirror' or command == 'wake up mirror':
             print('Initialize smartmirror')
 
+    # Function used in the login screen, takes voice commands and determines the validity
+    # of the given commands.
+    def login_screen(self):
+        command = self.recognizer.get_audio()
+        if self.login_command(command):
+            print('Going to facerec')
+            # TODO: Do something
+        elif self.register_command(command):
+            print('Going to registration')
+            # TODO: Do something
+        elif self.guest_command(command):
+            print('Going to guest screen')
+            # TODO: Do something
+
     # Defining functions to use in each module of the smartmirror to
     # minimize the workload on each screen
     def main_menu_speech(self):
@@ -71,6 +85,48 @@ class MenuSpeech(object):
                 self.news_list.append(news_keywords.the_new_york_times)
             elif source == 'time':
                 self.news_list.append(news_keywords.time)
+
+    # Function to determine if a user has issued a login command, iterates through
+    # a list of valid commands and returns true if the given input matches a valid command.
+    # Passes if not
+    def login_command(self, command):
+        valid_commands = [
+            'login', 'Login', 'LOGIN',
+            'log in', 'Log in', 'Log In',
+            'LOG IN', 'LOGIN', 'logon',
+            'Logon', 'LOGON', 'Log on',
+            'Log On', 'sign in', 'Sign in',
+            'Sign In', 'SIGN IN'
+        ]
+        for valid in valid_commands:
+            if command == valid:
+                return True
+
+    # Function to determine if a user has issued a register command, iterates through
+    # a list of valid commands and returns true if the given input matches a valid command.
+    # Passes if not
+    def register_command(self, command):
+        valid_commands = [
+            'register', 'Register', 'REGISTER',
+            'registration', 'Registration', 'REGISTRATION',
+            'sign up', 'Sign up', 'Sign Up',
+            'sign Up', 'SIGN UP'
+        ]
+        for valid in valid_commands:
+            if command == valid:
+                return True
+
+    # Function to determine if a user has issued a command to login as a guest, iterates through
+    # a list of valid commands and returns true if the given input matches a valid command.
+    # Passes if not
+    def guest_command(self, command):
+        valid_commands = [
+            'guest', 'Guest', 'GUEST',
+            'guess', 'Guess', 'GUESS'
+        ]
+        for valid in valid_commands:
+            if command == valid:
+                return True
 
     # TODO: OLD!!! MAYBE REDUNDANT
     # Uses the list of preferred news defined in News.py. This list will be
