@@ -9,6 +9,7 @@ from speech_rec import registration_speech
 from speech_rec import register_news
 
 
+# Top level wrapper containing functions used in the smartmirror.
 class Wrapper(object):
     fr = None
     db = None
@@ -33,13 +34,13 @@ class Wrapper(object):
         id = self.db.get_max_id()
         return id
 
-    # Wrapper function which stores reference images of the user's face to
-    # file and saves the path to the dir in the database.
+    # Function which stores reference images of the user's face to file and saves the
+    # path to the dir in the database.
     def add_user_face(self, id):
         path = register_face.add_face(id)
         self.db.update_path(id, path)
 
-    # Wrapper function which stores the user's preferred news to the database
+    # Function which stores the user's preferred news to the database
     def add_news(self, id):
         self.reg_news.set_preferred_news()
         news_list = self.reg_news.get_preferred_news()
@@ -77,19 +78,22 @@ class Wrapper(object):
     def get_articles_by_source(self, source_id):
         articles = self.news.get_articles_by_source(self.news_sources, source_id)
         return articles
-    
+
+    # Function which returns an article given the article ID
     def get_article_by_id(self, article_id):
         article = self.news.get_article_by_id(article_id)
         return article
 
+    # Function to predict face, returns user ID of the recognized face
     def predict(self):
         if self.fr is None:
             self.fr = facerec.FacialRecognition()
         return self.fr.predict()
-    
+
+    # Function to update a user's destination in the database
     def update_destination(self, destination):
         self.db.set_destination(destination)
-    
+
     def update_travel_type(self, travel_type):
         self.db.set_travel_type(travel_type)
 

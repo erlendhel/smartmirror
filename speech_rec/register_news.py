@@ -15,6 +15,7 @@ class RegisterNews(object):
     # Function used to return the list preferred news. Used in the registration process
     # where the returned list is added to the database as news sources.
     def get_preferred_news(self):
+
         return self.preferred_news
 
     # Function used to set the preferred news based on given voice commands.

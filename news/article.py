@@ -14,7 +14,6 @@
 class NewsArticle(object):
 
     article = {}
-
     # Function to clean article response from api
     # Returns type: dict
     def set_article(self, article_id, title, description, published):
@@ -24,5 +23,4 @@ class NewsArticle(object):
             'description': description,
             'published': published
         }
-
         return self.article

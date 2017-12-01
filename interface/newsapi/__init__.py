@@ -25,7 +25,6 @@ class NewsAPI(object):
             self.data = response_dict[endpoint]
         else:
             self.data = []
-
         return self.data
 
     def articles(self, source, params={}):

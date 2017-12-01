@@ -1,12 +1,12 @@
 from speech_rec import speechrec
 from speech_rec import news_keywords
-from news import News
 
 
 # Class used for user-registration with the help of speech-recognition
 class Registration(object):
     recognizer = None
     name = None
+    # TODO: Needs to be revised and tested
     alphabet = ['A', 'a', 'B', 'b', 'C', 'c', 'D', 'd', 'E', 'EE', 'e', 'F', 'f',
                 'G', 'g', 'H', 'h', 'I', 'i', 'J', 'j', 'K', 'k', 'L', 'l',
                 'M', 'm', 'N', 'n', 'O', 'o', 'P', 'p', 'Q', 'q', 'R', 'r'

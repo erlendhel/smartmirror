@@ -1,14 +1,11 @@
 import os
 import cv2
-import sys
 import singletonCamera
 from db import smartmirrordb
 
 # Number of frames to throw away while the camera adjusts to light levels
 ramp_frames = 30
-
 camera = singletonCamera.Camera().instance.camera
-
 db = smartmirrordb.UserDB()
 
 
@@ -18,12 +15,10 @@ def get_image():
     return im
 
 
+# Function to add a user face to the user database of the smartmirror
 def add_face(id):
-    for i in range(ramp_frames):
-        temp = get_image()
-    print('Taking image..')
+    print('Taking image..')  # TODO: Delete?
     n = 1
-    return_path = None
     if __name__ == '__main__':
         if not os.path.isdir("training-data/s" + str(id)):
             os.mkdir("training-data/s" + str(id))
@@ -42,4 +37,5 @@ def add_face(id):
 
         cv2.imwrite(file, camera_capture)
         n = n + 1
+
     return return_path
