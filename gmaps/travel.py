@@ -1,6 +1,5 @@
 import googlemaps
 import requests
-import urllib
 
 
 class Travel(object):
@@ -31,7 +30,6 @@ class Travel(object):
                 'duration': distance_matrix['rows'][0]['elements'][0]['duration']['text'],
                 'travel_mode': travel_mode
             }
-
             return travel_response
         else:
             return None
@@ -39,7 +37,6 @@ class Travel(object):
     # Internal use
     def __get_destination(self, destination):
         places = self.google_api.places(destination)
-
         return places
 
     # Internal use

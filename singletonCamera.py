@@ -17,5 +17,3 @@ class Camera(object):
     def __init__(self):
         if not Camera.instance:
             Camera.instance = Camera.__Camera()
-
-

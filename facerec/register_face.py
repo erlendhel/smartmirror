@@ -15,6 +15,7 @@ def get_image():
     return im
 
 
+# Function to add a user face to the user database of the smartmirror
 def add_face(id):
     print('Taking image..')  # TODO: Delete?
     n = 1

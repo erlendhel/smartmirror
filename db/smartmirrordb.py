@@ -68,7 +68,6 @@ class UserDB(object):
         users = list()
         for user in users_tuple:
             users.append(user[0])
-
         return users
 
     # Function to return all ID's of registered users
@@ -83,7 +82,6 @@ class UserDB(object):
         ids = list()
         for id in id_tuples:
             ids.append(id[0])
-
         return ids
 
     # Function to return a user from the database given an ID
@@ -98,7 +96,6 @@ class UserDB(object):
         user = list()
         for item in user_tuple:
             user.append(item)
-
         return user
 
     # Function to return all names of users registered in the database
@@ -112,7 +109,6 @@ class UserDB(object):
         names = list()
         for name in names_tuple:
             names.append(name[0])
-
         return names
 
     # Function to return a name of a user by ID
@@ -125,7 +121,6 @@ class UserDB(object):
         )
         name_tuple = self.cursor.fetchone()
         name = name_tuple[0]
-
         return name
 
     # Function which gets path to training data for a user specified by ID
@@ -138,7 +133,6 @@ class UserDB(object):
         )
         path_tuple = self.cursor.fetchone()
         path = path_tuple[0]
-
         return path
 
     # Function which returns the news sources preferred by a user given by the ID
@@ -157,7 +151,6 @@ class UserDB(object):
         for source in sources_tuple:
             for item in source:
                 sources.append(item)
-
         return sources
 
     # Function returning the highest primary key at the time of calling
@@ -171,7 +164,6 @@ class UserDB(object):
         )
         id_tuple = self.cursor.fetchone()
         id_value = id_tuple[0]
-
         return id_value
 
     # Function used to update the image path of a given user, takes user id and path
@@ -235,4 +227,3 @@ class UserDB(object):
             '''
         )
         self.db.commit()
-
