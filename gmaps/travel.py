@@ -16,7 +16,7 @@ class Travel(object):
             self.geo_request = requests.get(self.freegeoip)
             self.geo_json = self.geo_request.json()
         except requests.exceptions.RequestException:
-            print('SHIT')
+            print('Could not initialize google maps API')
             self.geo_request = None
 
     def get_travel_time(self, destination, travel_mode, language = "en"):

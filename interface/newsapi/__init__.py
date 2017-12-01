@@ -15,7 +15,7 @@ class NewsAPI(object):
         try:
             self.response = requests.get(endpoint_url)
         except requests.exceptions.RequestException:
-            print('FUCK')
+            print('Could not connect to news API')
             return None
         response_dict = self.response.json()
 

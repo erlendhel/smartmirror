@@ -1,5 +1,6 @@
 import  urllib.request
 import  urllib.parse
+import urllib.error
 import json
 from pprint import pprint
 from time import ctime, time
@@ -79,62 +80,81 @@ class Weather:
 
     #Returns a WeatherData object
     def getWeather(self):
-        return self.__weather_data
+        if self.__current_dict is not None:
+            return self.__weather_data
 
 
     # Returns a list containing 8 DayForecastWeatherData objects, i.e. the temperature
     # and description for the next 24h (3h intervals)
     def getDailyForecast(self):
-        return self.__forecast_day
+        if self.__forecast_day is not None:
+            return self.__forecast_day
 
 
     # Returns a list containing 7 WeekForecastWeatherData objects, i.e. the temperature
     # and description for the next 7 days (including current day)
     def getWeeklyForecast(self):
-        return self.__forecast_7days
+        if self.__forecast_7days is not None:
+            return self.__forecast_7days
 
 
     def updateCurrentData(self):
         # get data from url
-        with urllib.request.urlopen(self.__current_weather_url) as response:
+        try:
+            response = urllib.request.urlopen(self.__current_weather_url)
             self.__current_dict = json.loads(response.read().decode())
-
-        # put data into WeatherData object
-        main_dict = self.__current_dict['main']
-        self.__weather_data.sunset = ctime(self.__current_dict['sys']['sunset'])[10:16] # [10:16] gets only the time, i.e. 20:00
-        self.__weather_data.sunrise = ctime(self.__current_dict['sys']['sunrise'])[10:16] # [10:16] gets only the time, i.e. 20:00
-        self.__weather_data.temperature = main_dict['temp'] - (272.15)
-        self.__weather_data.humidity = main_dict['humidity']
-        self.__weather_data.weather_description = self.__current_dict['weather'][0]['description']
+        except urllib.error.URLError:
+            print("Weather module error: Could not update weather data")
+            self.__current_dict = None
+            
+        if self.__current_dict is not None:
+            # put data into WeatherData object
+            main_dict = self.__current_dict['main']
+            self.__weather_data.sunset = ctime(self.__current_dict['sys']['sunset'])[10:16] # [10:16] gets only the time, i.e. 20:00
+            self.__weather_data.sunrise = ctime(self.__current_dict['sys']['sunrise'])[10:16] # [10:16] gets only the time, i.e. 20:00
+            self.__weather_data.temperature = main_dict['temp'] - (272.15)
+            self.__weather_data.humidity = main_dict['humidity']
+            self.__weather_data.weather_description = self.__current_dict['weather'][0]['description']
 
 
     def updateWeekForecastData(self):
         # get data from url
-        with urllib.request.urlopen(self.__forecast_url) as response:
+        # get data from url
+        try:
+            response = urllib.request.urlopen(self.__forecast_url)
             self.__forecast_week_dict = json.loads(response.read().decode())
-
-        # put data into list of WeekForecastWeatherData objects
-        for day in self.__forecast_week_dict['list']:
-            forecastData = WeekForecastWeatherData()
-            forecastData.date = datetime.fromtimestamp(day['dt']).strftime("%b %d")
-            forecastData.temperature = int(day['temp']['day'] - 272) #Kelvin to Celsius
-            forecastData.description = self.__fillDescriptions(day)
-            self.__forecast_7days.append(forecastData)
+        except urllib.error.URLError:
+            print("Weather module error: Could not update weekly weather data")
+            self.__forecast_week_dict = None
+        
+        if self.__forecast_week_dict is not None:
+            # put data into list of WeekForecastWeatherData objects
+            for day in self.__forecast_week_dict['list']:
+                forecastData = WeekForecastWeatherData()
+                forecastData.date = datetime.fromtimestamp(day['dt']).strftime("%b %d")
+                forecastData.temperature = int(day['temp']['day'] - 272) #Kelvin to Celsius
+                forecastData.description = self.__fillDescriptions(day)
+                self.__forecast_7days.append(forecastData)
 
 
     def updateDayForecastData(self):
         # get data from url
-        with urllib.request.urlopen(self.__forecast_day_url) as response:
+        try:
+            response = urllib.request.urlopen(self.__forecast_day_url)
             self.__forecast_day_dict = json.loads(response.read().decode())
-
-        # put data into list of 8 DayForecastWeatherData objects
-        for index in range(0,8):
-            listItem = self.__forecast_day_dict['list']
-            forecastData = DayForecastWeatherData()
-            forecastData.time = datetime.fromtimestamp(listItem[index]['dt']).strftime("%H:%M")
-            forecastData.temperature = int(listItem[index]['main']['temp'] - 272) #Kelvin to Celsius
-            forecastData.description = self.__fillDescriptions(listItem[index])
-            self.__forecast_day.append(forecastData)
+        except urllib.error.URLError:
+            print("Weather module error: Could not update daily weather data")
+            self.__forecast_day_dict = None
+        
+        if self.__forecast_day_dict is not None:
+            # put data into list of 8 DayForecastWeatherData objects
+            for index in range(0,8):
+                listItem = self.__forecast_day_dict['list']
+                forecastData = DayForecastWeatherData()
+                forecastData.time = datetime.fromtimestamp(listItem[index]['dt']).strftime("%H:%M")
+                forecastData.temperature = int(listItem[index]['main']['temp'] - 272) #Kelvin to Celsius
+                forecastData.description = self.__fillDescriptions(listItem[index])
+                self.__forecast_day.append(forecastData)
 
 
     def __fillDescriptions(self,weatherList):
