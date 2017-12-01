@@ -1,6 +1,8 @@
 import time
 
 
+# Class which contains functions used throughout the smartmirror app
+# to time different functions in order to determine timeouts.
 class Timer(object):
     def __init__(self):
         self.start = time.time()
