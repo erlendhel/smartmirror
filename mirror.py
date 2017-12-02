@@ -1,3 +1,5 @@
+#!/usr/bin/env/python3
+
 from time import ctime, time
 from datetime import datetime
 from dateutil import parser
@@ -23,6 +25,14 @@ from kivy.config import Config
 # Set proper window size to fit iPad dimensions
 Config.set('graphics', 'resizable',0)
 Window.size = (int(600 / 1.13) ,int(800 / 1.13)) # (int(600 / 1.11) ,int(800 / 1.11)) => b = 15cm, l = 20cm
+
+Config.set('graphics', 'position', 'custom')
+Config.set('graphics', 'borderless', 1)
+Window.resizable = 0
+Window.borderless = 1
+
+Window.left = 0
+Window.top = 0
 
 from weather import Weather
 from news import News
@@ -78,6 +88,7 @@ class Arduino():
         return self.connected
 
     def write(self, command):
+        print("Writing to pin " + str(command))
         self.serial_connection.write(command)
 
 arduino = Arduino()
@@ -159,9 +170,6 @@ class FaceRecognitionScreen(Screen):
             # Used to set the news sources for the active user just once (first time entering main screen)
             global new_user_logged_in
             new_user_logged_in = True
-
-            if arduino.is_connected() is True:
-                arduino.write(b'6')
             
             # Inform the user that he/she has sucessfully logged in
             feedback_text = "Face recognized\n\n Welcome " + active_user['name'] + "!"
@@ -284,26 +292,31 @@ class NavLabel(Label):
 
     def __init__(self, **kwargs):
         super(NavLabel, self).__init__(**kwargs)
-
+        
         # Get the dict from the Travel interface, and set relevant variables
-        self.travel_dict = travel.get_travel_time("Krona, Kongsberg", "driving")
-        self.travel_mode = self.travel_dict['travel_mode']
+        result = travel.get_travel_time("Krona, Kongsberg", "driving")
+        if result is not None:
+            self.travel_dict = travel.get_travel_time("Krona, Kongsberg", "driving")
+            self.travel_mode = self.travel_dict['travel_mode']
 
-        # Get first word of string, quick fix of long destination name. TODO: edit
-        destination = self.travel_dict['destination_name'].split(' ', 1)[0]
+            # Get first word of string, quick fix of long destination name. TODO: edit
+            destination = self.travel_dict['destination_name'].split(' ', 1)[0]
 
-        # Set the displayed text
-        self.text = self.travel_dict['duration'] + " to " + destination
+            # Set the displayed text
+            self.text = self.travel_dict['duration'] + " to " + destination
 
     def set_destination_from_db(self):
-        self.travel_dict = travel.get_travel_time(active_user['destination'], active_user['travel_type'])
-        self.travel_mode = self.travel_dict['travel_mode']
+        
+        result = travel.get_travel_time(active_user['destination'], active_user['travel_type'])
+        if result is not None:
+            self.travel_dict = travel.get_travel_time(active_user['destination'], active_user['travel_type'])
+            self.travel_mode = self.travel_dict['travel_mode']
 
-        # Get first word of string, quick fix of long destination name. TODO: edit
-        destination = self.travel_dict['destination_name'].split(' ', 1)[0]
+            # Get first word of string, quick fix of long destination name. TODO: edit
+            destination = self.travel_dict['destination_name'].split(' ', 1)[0]
 
-        # Set the displayed text
-        self.text = self.travel_dict['duration'] + " to " + destination
+            # Set the displayed text
+            self.text = self.travel_dict['duration'] + " to " + destination
 
 class ClockLabel(Label):
     clock = StringProperty()
@@ -345,10 +358,11 @@ class WeatherButton(Button):
     def __init__(self, **kwargs):
         super(WeatherButton, self).__init__(**kwargs)
 
-        # Convert to int before string to cut out decimal points
-        self.temperature = str(int(weather.getWeather().temperature)) + "°"
-        self.description = weather.getWeather().weather_description
-        self.source = set_weather_image(self.description)
+        if weather.is_connected() is True:
+            # Convert to int before string to cut out decimal points
+            self.temperature = str(int(weather.getWeather().temperature)) + "°"
+            self.description = weather.getWeather().weather_description
+            self.source = set_weather_image(self.description)
 
         # Set a callback timer to send in a new requeset to the weather API every 10 minutes
         Clock.schedule_interval(self.update_temperature, 600)
@@ -357,10 +371,11 @@ class WeatherButton(Button):
         print("Updating temperature data")
         weather.updateCurrentData()
 
-        # Convert to int before string to cut out decimal points
-        self.temperature = str(int(weather.getWeather().temperature)) + "°"
-        self.description = weather.getWeather().weather_description
-        self.source = set_weather_image(self.description)
+        if weather.is_connected() is True:
+            # Convert to int before string to cut out decimal points
+            self.temperature = str(int(weather.getWeather().temperature)) + "°"
+            self.description = weather.getWeather().weather_description
+            self.source = set_weather_image(self.description)
 
 
 class WeatherGrid(GridLayout):
@@ -422,7 +437,14 @@ class NewModule(Button):
 
 
 class SettingButton(Button):
-    pass
+    
+    def __init__(self, **kwargs):
+        super(SettingButton, self).__init__(**kwargs)
+
+    def start_arduino(self):
+        print("Making toothpaste...")
+        if arduino.is_connected() is True:
+            arduino.write(b'12')
 
 
 class NewsScreen(Screen):
@@ -592,12 +614,14 @@ class PresentWeatherLayout(GridLayout):
         self.set_data()
 
     def set_data(self):
-        self.temperature = str(int(weather.getWeather().temperature)) + "°"
-        self.humidity = str(weather.getWeather().humidity) + "%"
-        self.sunset = weather.getWeather().sunset
-        self.sunrise = weather.getWeather().sunrise
-        self.description = weather.getWeather().weather_description
-        self.image_source = set_weather_image(self.description)
+
+        if weather.is_connected() is True:
+            self.temperature = str(int(weather.getWeather().temperature)) + "°"
+            self.humidity = str(weather.getWeather().humidity) + "%"
+            self.sunset = weather.getWeather().sunset
+            self.sunrise = weather.getWeather().sunrise
+            self.description = weather.getWeather().weather_description
+            self.image_source = set_weather_image(self.description)
 
 
 # TODO: How often should a callback update the daily forecast?
@@ -606,16 +630,18 @@ class DayWeatherLayout(GridLayout):
 
     def __init__(self, **kwargs):
         super(DayWeatherLayout, self).__init__(**kwargs)
-        self.day_forecast = weather.getDailyForecast()
 
-        for x in range(0, 7):
-            layout = GridLayout(rows=3)
-            source = set_weather_image(self.day_forecast[x].description)
-            image = Image(source=source, allow_stretch=True)
-            layout.add_widget(image)
-            layout.add_widget(Label(text=str(self.day_forecast[x].temperature) + "°"))
-            layout.add_widget(Label(text=self.day_forecast[x].time))
-            self.add_widget(layout)
+        if weather.is_connected() is True:
+            self.day_forecast = weather.getDailyForecast()
+
+            for x in range(0, 7):
+                layout = GridLayout(rows=3)
+                source = set_weather_image(self.day_forecast[x].description)
+                image = Image(source=source, allow_stretch=True)
+                layout.add_widget(image)
+                layout.add_widget(Label(text=str(self.day_forecast[x].temperature) + "°"))
+                layout.add_widget(Label(text=self.day_forecast[x].time))
+                self.add_widget(layout)
 
 
 # TODO: How often should a callback update the weekly forecast?
@@ -624,16 +650,18 @@ class WeekWeatherLayout(GridLayout):
 
     def __init__(self, **kwargs):
         super(WeekWeatherLayout, self).__init__(**kwargs)
-        self.week_forecast = weather.getWeeklyForecast()
 
-        for x in range(0, 7):
-            layout = GridLayout(rows=3)
-            source = set_weather_image(self.week_forecast[x].description)
-            image = Image(source=source, allow_stretch=True)
-            layout.add_widget(image)
-            layout.add_widget(Label(text=str(self.week_forecast[x].temperature) + "°"))
-            layout.add_widget(Label(text=self.week_forecast[x].date))
-            self.add_widget(layout)
+        if weather.is_connected() is True:
+            self.week_forecast = weather.getWeeklyForecast()
+
+            for x in range(0, 7):
+                layout = GridLayout(rows=3)
+                source = set_weather_image(self.week_forecast[x].description)
+                image = Image(source=source, allow_stretch=True)
+                layout.add_widget(image)
+                layout.add_widget(Label(text=str(self.week_forecast[x].temperature) + "°"))
+                layout.add_widget(Label(text=self.week_forecast[x].date))
+                self.add_widget(layout)
 
 
 class SettingScreen(Screen):

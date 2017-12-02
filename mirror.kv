@@ -48,13 +48,6 @@
         app.root.transition = SlideTransition()
         app.root.transition.direction = "right"
         app.root.current = "main"
-
-    canvas.after:
-        Color:
-            rgba: 1,0,0,0.5
-        Rectangle:
-            size: self.size
-            pos: self.pos
     pos: 0,0
     text: "<"
     background_color: 0,0,0,1
@@ -252,9 +245,10 @@
             cols: 2
             size_hint_y: 0.1
             SettingButton:
-                
-                on_release: 
-                    app.root.current = "settings"
+                on_release:
+                    
+                    app.root.current = "main"
+                    self.start_arduino()
                     app.root.transition = SlideTransition()
                 background_color: 0,0,0,1
 

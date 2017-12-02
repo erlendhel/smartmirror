@@ -56,6 +56,8 @@ class Weather:
     __forecast_day_dict = dict()
     __forecast_day = list()
 
+    connected = True
+
 
     def __init__(self):
         self.__current_weather_url = "http://api.openweathermap.org/data/2.5/weather?id="+self.__kongsberg_id+"&APPID="+self.__api_key
@@ -106,6 +108,7 @@ class Weather:
         except urllib.error.URLError:
             print("Weather module error: Could not update weather data")
             self.__current_dict = None
+            self.connected = False
             
         if self.__current_dict is not None:
             # put data into WeatherData object
@@ -126,6 +129,7 @@ class Weather:
         except urllib.error.URLError:
             print("Weather module error: Could not update weekly weather data")
             self.__forecast_week_dict = None
+            self.connected = False
         
         if self.__forecast_week_dict is not None:
             # put data into list of WeekForecastWeatherData objects
@@ -145,6 +149,7 @@ class Weather:
         except urllib.error.URLError:
             print("Weather module error: Could not update daily weather data")
             self.__forecast_day_dict = None
+            self.connected = False
         
         if self.__forecast_day_dict is not None:
             # put data into list of 8 DayForecastWeatherData objects
@@ -160,6 +165,9 @@ class Weather:
     def __fillDescriptions(self,weatherList):
         for x in weatherList['weather']:
             return x['description']
+
+    def is_connected(self):
+        return self.connected
 
 
 

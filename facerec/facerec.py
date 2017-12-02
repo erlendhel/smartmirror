@@ -198,17 +198,18 @@ class FacialRecognition(object):
                 # float given in label[1] gives a reference number of how successful the prediction is. A lower
                 # number indicates a more accurate prediction. Checking if a prediction is below 60 in order to
                 # 'log in' a person.
-                if label[1] < 60:
+                if label[1] < 40:
                     label_text = self.subjects[label[0]]
                     print('Facerec module found face with id: ', label_text)
                     print('Facerec accuracy:', label[1])
                     return label_text
                 else:
-                    print('Unknown')
                     # Add the passed time to the end_time variable
                     end_time = self.timer.get_time_in_seconds()
                 # Get name of respective label returned by face recognizer
             else:
-                print('Unknown')
+                label_text = self.subjects[label[0]]
+                print('Unknown' + ', thinks it is ' + str(label[0]))
+                print('Accuracy: ' + str(label[1]))print('Unknown')
                 # Add the passed time to the end_time variable
                 end_time = self.timer.get_time_in_seconds()

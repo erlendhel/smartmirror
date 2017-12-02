@@ -1,5 +1,9 @@
-from speech_rec import speechrec
-from speech_rec import news_keywords
+
+import sys
+sys.path.append('/home/pi/Desktop/repos/smartmirror/')
+
+import speechrec
+import news_keywords
 from db import smartmirrordb
 from news import News
 
@@ -31,6 +35,12 @@ class MenuSpeech(object):
         elif self.determine_news_source(command):
             print('Going to: ', self.selected_news)
 
+    def init_arduino(self):
+        command = self.recognizer.get_audio()
+        if command == 'test' or command == 'Test' or command == 'TEST':
+            print('Success!')
+        print(command)
+            
     def weather_speech(self):
         command = self.recognizer.get_audio()
         if command == 'Back' or command == 'back':
@@ -130,3 +140,6 @@ class MenuSpeech(object):
                 if command == keyword:
                     self.selected_news = source[0]
                     return True
+
+sr = MenuSpeech()
+sr.init_arduino()
