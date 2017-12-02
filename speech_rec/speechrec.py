@@ -15,9 +15,11 @@ class SpeechRecognition(object):
             # Get audio from microphone
             with sr.Microphone() as source:
                 print('Speak:')
+                print(self.recognizer)
                 audio = self.recognizer.listen(source)
             try:
                 command = self.recognizer.recognize_google(audio)
+                print(command)
                 return command
             except sr.UnknownValueError:
                 print('Could not understand audio')

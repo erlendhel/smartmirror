@@ -1,5 +1,8 @@
-from speech_rec import speechrec
-from speech_rec import news_keywords
+import sys
+sys.path.append('/home/pi/Desktop/repos/smartmirror/')
+
+import speechrec
+import news_keywords
 from db import smartmirrordb
 from news import News
 
@@ -96,7 +99,8 @@ class MenuSpeech(object):
             'LOG IN', 'LOGIN', 'logon',
             'Logon', 'LOGON', 'Log on',
             'Log On', 'sign in', 'Sign in',
-            'Sign In', 'SIGN IN'
+            'Sign In', 'SIGN IN', 'Morgan',
+            'not in', 'LogMeIn'
         ]
         for valid in valid_commands:
             if command == valid:
@@ -186,3 +190,6 @@ class MenuSpeech(object):
                 if command == keyword:
                     self.selected_news = source[0]
                     return True
+                
+speech = MenuSpeech()
+speech.login_screen()
