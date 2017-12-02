@@ -190,6 +190,3 @@ class MenuSpeech(object):
                 if command == keyword:
                     self.selected_news = source[0]
                     return True
-                
-speech = MenuSpeech()
-speech.login_screen()
