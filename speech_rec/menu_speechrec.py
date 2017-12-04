@@ -100,7 +100,8 @@ class MenuSpeech(object):
             'Logon', 'LOGON', 'Log on',
             'Log On', 'sign in', 'Sign in',
             'Sign In', 'SIGN IN', 'Morgan',
-            'not in', 'LogMeIn'
+            'not in', 'LogMeIn', 'London',
+            'looking', 'nothing', 'Logan'
         ]
         for valid in valid_commands:
             if command == valid:
@@ -190,3 +191,6 @@ class MenuSpeech(object):
                 if command == keyword:
                     self.selected_news = source[0]
                     return True
+                
+speech = MenuSpeech()
+speech.login_screen()
