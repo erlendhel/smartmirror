@@ -106,7 +106,9 @@ class MenuSpeech(object):
             'LOG IN', 'LOGIN', 'logon',
             'Logon', 'LOGON', 'Log on',
             'Log On', 'sign in', 'Sign in',
-            'Sign In', 'SIGN IN'
+            'Sign In', 'SIGN IN', 'Morgan',
+            'not in', 'LogMeIn', 'London',
+            'looking', 'nothing', 'Logan'
         ]
         for valid in valid_commands:
             if command == valid:
@@ -197,5 +199,3 @@ class MenuSpeech(object):
                     self.selected_news = source[0]
                     return True
 
-sr = MenuSpeech()
-sr.init_arduino()
