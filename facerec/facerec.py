@@ -186,17 +186,15 @@ class FacialRecognition(object):
             
             # Detect face from given image
             face, rect = self.detect_face(img)
-
             # Check if a face is detected
             if face is not None:
                 # Predict the face using face recognizer
                 label = self.face_recognizer.predict(face)
-
                 # The 'predict' function of face_recognizer returns two labels: label[0] contains a index number, the
                 # float given in label[1] gives a reference number of how successful the prediction is. A lower
                 # number indicates a more accurate prediction. Checking if a prediction is below 60 in order to
                 # 'log in' a person.
-                if label[1] < 40:
+                if label[1] < 50:
                     label_text = self.subjects[label[0]]
                     print('Facerec module found face with id: ', label_text)
                     print('Facerec accuracy:', label[1])
@@ -206,8 +204,4 @@ class FacialRecognition(object):
                     end_time = self.timer.get_time_in_seconds()
                 # Get name of respective label returned by face recognizer
             else:
-                label_text = self.subjects[label[0]]
-                print('Unknown' + ', thinks it is ' + str(label[0]))
-                print('Accuracy: ' + str(label[1]))print('Unknown')
-                # Add the passed time to the end_time variable
                 end_time = self.timer.get_time_in_seconds()

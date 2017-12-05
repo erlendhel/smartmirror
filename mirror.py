@@ -1,11 +1,12 @@
 #!/usr/bin/env/python3
 
-from time import ctime, time
+# Python modules
+from time import ctime, time, sleep
 from datetime import datetime
 from dateutil import parser
-import serial
-from serial import SerialException
+import _thread
 
+# Kivy modules
 import kivy
 kivy.require('1.10.0')
 from kivy.app import App
@@ -16,40 +17,45 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.clock import Clock
-from kivy.properties import NumericProperty, StringProperty, ListProperty, DictProperty
+from kivy.properties import NumericProperty, StringProperty, ListProperty, DictProperty, ObjectProperty
 from kivy.uix.image import Image
+from kivy.uix.progressbar import ProgressBar
 from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
 from kivy.config import Config
+
+# Own modules
+from weather import Weather
+from news import News
+from gmaps import travel
+from facerec import facerec
+import wrapper
+from speech_rec import menu_speechrec
+import arduino
+from timer_module import time_module
 
 # Set proper window size to fit iPad dimensions
 Config.set('graphics', 'resizable',0)
 Window.size = (int(600 / 1.13) ,int(800 / 1.13)) # (int(600 / 1.11) ,int(800 / 1.11)) => b = 15cm, l = 20cm
 
 Config.set('graphics', 'position', 'custom')
-Config.set('graphics', 'borderless', 1)
+#Config.set('graphics', 'borderless', 1)
 Window.resizable = 0
-Window.borderless = 1
+#Window.borderless = 1
 
 Window.left = 0
 Window.top = 0
 
-from weather import Weather
-from news import News
-from gmaps import travel
-from facerec import facerec
-import wrapper
-
-
-# TODO: program crashes if there is no internet connection
+# Create shared variables 
 weather = Weather()
 news = News.News()
 travel = travel.Travel()
 registration = wrapper.Wrapper()
-
-
-# Will be initialized init function of FaceRecognitionScreen
+menu_speech = menu_speechrec.MenuSpeech()
 face_rec = None
+arduino = arduino.Arduino()
+active_user = None
+new_user_logged_in = False
 
 # This list contains a list of three preferred(chosen) sources.
 # Fetched when login in by adding the news soruces from the user database
@@ -63,6 +69,7 @@ chosenTitles = list()
 # Is set in TitleButton::set_article()
 chosenArticle = dict()
 
+# TODO: Might be removed??
 class User():
     username = str()
     user_id = int()
@@ -73,32 +80,20 @@ class User():
         user_id = None
         path_to_faceimg = ""
 
-class Arduino():
-    serial_connection = None
-    connected = False
-    
-    def __init__(self):
-        try:
-            self.serial_connection = serial.Serial('/dev/ttyACM0', 9600)
-            self.connected = True
-        except SerialException:
-            print('Could not open port to Arduino')
+class VoiceWrapper():
+    first_startup = bool()
+    progress_bar = ObjectProperty()
+    started_recording = bool()
+    wait = bool()
+    progress_bar_created = False
+    in_screen = bool()
 
-    def is_connected(self):
-        return self.connected
 
-    def write(self, command):
-        print("Writing to pin " + str(command))
-        self.serial_connection.write(command)
-
-arduino = Arduino()
 user = User()
-active_user = None
-new_user_logged_in = False
+
 
 # Used in several classes used to set weather image paths
 def set_weather_image(description):
-    print("Setting weather description image(s)")
     length = len(description)
 
     # Because of the many different types of weather descriptions
@@ -123,17 +118,93 @@ def set_weather_image(description):
 
 
 class StartupScreen(Screen):
+    first_startup = bool()
+    progress_bar = ObjectProperty()
+    started_recording = bool()
+    wait = bool()
+    progress_bar_created = False
+    in_screen = bool()
+    refill = bool()
 
     def __init__(self, **kwargs):
         super(StartupScreen, self).__init__(**kwargs)
+        self.first_startup = True
+        
 
-    def on_pre_enter(self):
-        print("Loading startup screen")
 
     def on_enter(self):
         print("Entered startup screen")
-               
+        self.in_screen = True
+        if self.first_startup is True:
+            _thread.start_new_thread(self.record_speech,("menu-voice-recording",20))
+            self.first_startup = False
+        else:
+            _thread.start_new_thread(self.record_speech,("menu-voice-recording",1))
+        
 
+    def record_speech(self, threadName, delay):
+        print("Getting ready to record voice...")
+        sleep(delay)
+        print("Starting thread " + threadName)
+        if self.progress_bar_created is False:
+            self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
+            self.add_widget(self.progress_bar)
+            self.progress_bar_created = True
+        
+        _thread.start_new_thread(self.update_bar,("login screen progressbar updater",0))
+        
+        valid_command = False
+        while valid_command is False and self.in_screen is True:
+            self.started_recording = True
+            self.wait = False
+            command = menu_speech.login_screen()
+            self.started_recording = False
+            if command == "login":
+                self.parent.current = 'facerec'
+                valid_command = True
+            elif command == "guest":
+                self.parent.current = 'main'
+                valid_command = True
+            else:
+                print("Did not recognize command")
+
+                
+    def update_bar(self, threadName, delay):
+        print("Starting thread "+ threadName)
+        iterations = 225 
+        self.wait = False
+        timer = time_module.Timer()
+        while self.in_screen is True:
+            sleep(0.01)   
+            if self.progress_bar.value <= 0 and self.refill is False:
+                self.wait = True
+                self.refill = True
+                print(timer.get_time_in_seconds())
+                timer.restart()
+            elif self.started_recording is True and self.wait is False:
+                if self.refill is True:
+                    self.progress_bar.value = 100
+                    self.refill = False
+                self.progress_bar.value = self.progress_bar.value - self.progress_bar.max / iterations
+
+
+    def on_leave(self):
+        self.in_screen = False
+        self.progress_bar.value = 100
+        self.refill = False
+        
+        
+
+
+                
+            
+
+    def update_progressbar(self, *args):
+        if self.progress_bar.value <= 0:
+            self.progress_bar.value = 100
+        else:
+            self.progress_bar.value = self.progress_bar.value - 7.5
+            
 class FaceRecognitionScreen(Screen):
 
     def __init__(self, **kwargs):
@@ -265,6 +336,15 @@ class FaceRegistrationScreen(Screen):
 
 
 class MainScreen(Screen):
+    # Variables used to control voice GUI
+    first_startup = bool()
+    progress_bar = ObjectProperty()
+    started_recording = bool()
+    wait = bool()
+    progress_bar_created = False
+    in_screen = bool()
+    refill = bool()
+    
     
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
@@ -279,8 +359,70 @@ class MainScreen(Screen):
 
     def on_enter(self):
         print("Entered main screen")
-
+        self.in_screen = True
+        _thread.start_new_thread(self.record_speech,("main-screen-voice-recording",0.5))
         
+
+    def record_speech(self, threadName, delay):
+        print("Getting ready to record voice")
+        sleep(delay)
+        if self.progress_bar_created is False:
+            self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
+            self.add_widget(self.progress_bar)
+            self.progress_bar_created = True
+        print("Starting thread " + threadName) 
+
+        _thread.start_new_thread(self.update_bar,("main screen progressbar updater",0))
+        
+        valid_command = False
+        while valid_command is False and self.in_screen is True:
+            self.started_recording = True
+            self.wait = False  
+            command = menu_speech.main_menu_speech()
+            self.started_recording = False
+            if command == "weather":
+                self.parent.current = 'weather'
+                valid_command = True
+            elif command == "settings":
+                self.parent.current = 'settings'
+                valid_command = True
+            elif command == "logout":
+                self.parent.current = 'startup'
+                valid_command = True
+            else:
+                print("Did not recognize command")
+                
+
+        print("Leaving thread " + threadName)
+            
+
+    
+    def update_bar(self, name, delay):
+        print("Starting thread " + name)
+        iterations = 225 
+        self.wait = False
+        self.refill = False
+        timer = time_module.Timer()
+        while self.in_screen:
+            sleep(0.01)   
+            if self.progress_bar.value <= 0 and self.refill is False:
+                self.wait = True
+                self.refill = True
+                print("Time to empty progressbar: " + str(timer.get_time_in_seconds()))
+                timer.restart()
+            elif self.started_recording is True and self.wait is False:
+                if self.refill is True:
+                    self.progress_bar.value = 100
+                    self.refill = False
+                self.progress_bar.value = self.progress_bar.value - self.progress_bar.max / iterations
+
+        print("Leaving thread " + name)
+
+
+    def on_leave(self):
+        self.in_screen = False
+        self.progress_bar.value = 100
+        self.refill = False
 
 class NavigationGrid(GridLayout):
     pass
@@ -442,7 +584,6 @@ class SettingButton(Button):
         super(SettingButton, self).__init__(**kwargs)
 
     def start_arduino(self):
-        print("Making toothpaste...")
         if arduino.is_connected() is True:
             arduino.write(b'12')
 
@@ -477,9 +618,6 @@ class NewsIcon(Button):
         # Set the global variable to contain the articles based on what icon was clicked
         global chosenTitles
         chosenTitles = articles
-
-    
-    
 
 
 class NewsSourceScreen(Screen):
@@ -546,7 +684,6 @@ class NewsArticleScreen(Screen):
     # has set the global variable chosenArticle to contain
     # the correct article data based on what title is pushed
     def on_pre_enter(self):
-        #print("Loading news article screen") 
         self.article = chosenArticle
         self.ids.title.text = self.article['title']
 
@@ -565,10 +702,6 @@ class NewsArticleScreen(Screen):
         if self.article['description'] is not None:
             self.ids.description.text = self.article['description']
 
-    def on_enter(self):
-        #print("Entered news article screen for article for article with title '"
-        #     + str(self.article['title']) + "'")
-        pass
 
 class TitleLabel(Label):
     pass
@@ -583,6 +716,14 @@ class DescriptionLabel(Label):
 
 
 class WeatherScreen(Screen):
+    # Variables used to control voice GUI
+    first_startup = bool()
+    progress_bar = ObjectProperty()
+    started_recording = bool()
+    wait = bool()
+    progress_bar_created = False
+    in_screen = bool()
+    refill = bool()
     
     def __init__(self, **kwargs):
         super(WeatherScreen, self).__init__(**kwargs)
@@ -593,7 +734,58 @@ class WeatherScreen(Screen):
 
     def on_enter(self):
         print("Entered weather screen")
+        self.in_screen = True
+        _thread.start_new_thread(self.record_speech,("weather-screen-speech",1))
+
+    def record_speech(self, threadName, delay):
+        print("Getting ready to record voice")
+        sleep(delay)
+        print("Starting thread " + threadName)
+        if self.progress_bar_created is False:
+            self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-310))
+            self.add_widget(self.progress_bar)
+            self.progress_bar_created = True
         
+        _thread.start_new_thread(self.update_bar,("weather screen progressbar updater",0))
+        
+        valid_command = False
+        while valid_command is False and self.in_screen is True:
+            self.started_recording = True
+            self.wait = False  
+            command = menu_speech.weather_speech()
+            self.started_recording = False
+            if command == "back":
+                self.parent.current = 'main'
+                valid_command = True
+            else:
+                print("Did not recognize command")
+
+    def update_bar(self, name, delay):
+        print("Starting thread " + name)
+        iterations = 225 
+        self.wait = False
+        self.refill = False
+        timer = time_module.Timer()
+        while self.in_screen:
+            sleep(0.01)   
+            if self.progress_bar.value <= 0 and self.refill is False:
+                self.wait = True
+                self.refill = True
+                print("Time to empty progressbar: " + str(timer.get_time_in_seconds()))
+                timer.restart()
+            elif self.started_recording is True and self.wait is False:
+                if self.refill is True:
+                    self.progress_bar.value = 100
+                    self.refill = False
+                self.progress_bar.value = self.progress_bar.value - self.progress_bar.max / iterations
+
+        print("Leaving thread " + name)
+
+    def on_leave(self):
+        self.in_screen = False
+        self.progress_bar.value = 100
+        self.refill = False
+            
     
 class PresentWeatherLayout(GridLayout):
     temperature = StringProperty()

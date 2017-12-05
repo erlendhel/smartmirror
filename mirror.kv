@@ -67,12 +67,14 @@
     name: "startup"
     id: startup_screen
     GridLayout:
+        id: grid
         spacing: 0,0
         size_hint_y: 0.5
         pos: 0, (self.parent.height - self.height) - 100
-        rows: 3
+        rows: 4
         Button:
-            text: "Log in"
+            id: login
+            text: "Sign in"
             font_size: 25
             on_release:
                 app.root.transition = SlideTransition()
@@ -81,6 +83,7 @@
             background_color: 0,0,0,1
                 
         Button:
+            id: register
             text: "Register"
             font_size: 25
             on_release:
@@ -90,13 +93,15 @@
             background_color: 0,0,0,1
             
         Button:
-            text: "Log in as guest"
+            id: guest
+            text: "Guest"
             font_size: 25
             on_release:
                 app.root.transition = SlideTransition()
                 app.root.transition.direction = "left"
                 #app.root.current = "main"
             background_color: 0,0,0,1
+            
             
             
 <FaceRecognitionScreen>:

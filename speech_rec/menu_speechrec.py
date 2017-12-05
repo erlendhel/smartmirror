@@ -1,9 +1,8 @@
-
 import sys
 sys.path.append('/home/pi/Desktop/repos/smartmirror/')
 
-import speechrec
-import news_keywords
+from speech_rec import speechrec
+from speech_rec import news_keywords
 from db import smartmirrordb
 from news import News
 
@@ -28,42 +27,38 @@ class MenuSpeech(object):
     # of the given commands.
     def login_screen(self):
         command = self.recognizer.get_audio()
-        if self.login_command(command):
-            print('Going to facerec')
-            # TODO: Do something
+        if command is None:
+            return None  
+        elif self.login_command(command):
+            return "login"
         elif self.register_command(command):
-            print('Going to registration')
-            # TODO: Do something
+            return "register"
         elif self.guest_command(command):
-            print('Going to guest screen')
-            # TODO: Do something
+            return "guest"
+        
 
     # Defining functions to use in each module of the smartmirror to
     # minimize the workload on each screen
     def main_menu_speech(self):
         command = self.recognizer.get_audio()
         if command == 'Weather' or command == 'weather':
-            print('Going to weather')
+            return "weather"
         elif command == 'Settings' or command == 'settings':
-            print('Going to settings')
+            return "settings"
         elif self.determine_news_source(command):
             print('Going to: ', self.selected_news)
+        elif self.logout_command(command):
+            return "logout"
 
-    def init_arduino(self):
-        command = self.recognizer.get_audio()
-        if command == 'test' or command == 'Test' or command == 'TEST':
-            print('Success!')
-        print(command)
-            
     def weather_speech(self):
         command = self.recognizer.get_audio()
-        if command == 'Back' or command == 'back':
-            print('Going to main menu')
+        if self.back_command(command):
+            return "back"
+
 
     # TODO: Used in startup to assign a user's preferred news. Gets values from the database based on id
     def assign_pref_news(self, id):
         pref_news = self.db.get_news_sources_by_id(id)
-
         for source in pref_news:
             if source == 'bbc-news':
                 self.news_list.append(news_keywords.bbc)
@@ -100,45 +95,88 @@ class MenuSpeech(object):
     # a list of valid commands and returns true if the given input matches a valid command.
     # Passes if not
     def login_command(self, command):
+        if command is None:
+            return False
+        
         valid_commands = [
-            'login', 'Login', 'LOGIN',
-            'log in', 'Log in', 'Log In',
-            'LOG IN', 'LOGIN', 'logon',
-            'Logon', 'LOGON', 'Log on',
-            'Log On', 'sign in', 'Sign in',
-            'Sign In', 'SIGN IN', 'Morgan',
-            'not in', 'LogMeIn', 'London',
-            'looking', 'nothing', 'Logan'
+            'log in','login','logon',
+            'log on','sign in','morgan',
+            'not in','logmein','logan',
+            'nothing','blogging','looking',
+            'onions', 'bullying','sending',
+            'finding'
         ]
-        for valid in valid_commands:
-            if command == valid:
-                return True
+        
+        # Check if the  command is in the valid_commands list
+        # lower() will make the string lowercase,
+        # used to shrinken size of command list
+        if any(command.lower() in s for s in valid_commands):
+            return True
+
+    def logout_command(self, command):
+        if command is None:
+            return False
+        
+        valid_commands = [
+            'sign out', 'log out', 'logout',
+            'sign off','signout', 'log off'
+            'logoff', 'lookout', 'look up',
+            'no doubt'
+        ]
+        
+        # Check if the  command is in the valid_commands list
+        # lower() will make the string lowercase,
+        # used to shrinken size of command list
+        if any(command.lower() in s for s in valid_commands):
+            return True
 
     # Function to determine if a user has issued a register command, iterates through
     # a list of valid commands and returns true if the given input matches a valid command.
     # Passes if not
     def register_command(self, command):
+        if command is None:
+            return False
+        
         valid_commands = [
-            'register', 'Register', 'REGISTER',
-            'registration', 'Registration', 'REGISTRATION',
-            'sign up', 'Sign up', 'Sign Up',
-            'sign Up', 'SIGN UP'
+            'register','registration','sign up'
         ]
-        for valid in valid_commands:
-            if command == valid:
-                return True
+
+        # Check if the  command is in the valid_commands list
+        if any(command.lower() in s for s in valid_commands):
+            return True
 
     # Function to determine if a user has issued a command to login as a guest, iterates through
     # a list of valid commands and returns true if the given input matches a valid command.
     # Passes if not
     def guest_command(self, command):
+        if command is None:
+            return False 
+        
         valid_commands = [
-            'guest', 'Guest', 'GUEST',
-            'guess', 'Guess', 'GUESS'
+            'guest','guess','log in as guest'
+            'login as guest', 'sign in as guest'
+            'desk', 'best'
         ]
-        for valid in valid_commands:
-            if command == valid:
-                return True
+
+        # Check if the  command is in the valid_commands list
+        if any(command.lower() in s for s in valid_commands):
+            return True
+
+    def back_command(self, command):
+        if command is None:
+            return False
+        
+        valid_commands = [
+            'back', 'go back','previous',
+            'main menu', 'menu','black',
+            'call back','callback','tobacco',
+            'brought back', 'dekk', 'bolt back',
+            'baalbek'
+            ]
+
+        # Check if the  command is in the valid_commands list
+        if any(command.lower() in s for s in valid_commands):
+            return True
 
     # TODO: OLD!!! MAYBE REDUNDANT
     # Uses the list of preferred news defined in News.py. This list will be
@@ -198,4 +236,5 @@ class MenuSpeech(object):
                 if command == keyword:
                     self.selected_news = source[0]
                     return True
+                
 

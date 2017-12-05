@@ -27,7 +27,7 @@ def add_face(id):
         if not os.path.isdir("facerec/training-data/s" + str(id)):
             os.mkdir("facerec/training-data/s" + str(id))
         return_path = "facerec/training-data/s" + str(id)
-    while n < 21:
+    while n < 45:
         print('Taking image')
         camera_capture = get_image()
         if __name__ == '__main__':

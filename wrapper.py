@@ -99,9 +99,7 @@ class Wrapper(object):
 
 # TODO: For testing
 if __name__ == '__main__':
-    reg = Wrapper()
-    userid = reg.set_user_name("Youp")
-    reg.add_user_face(userid)
+    pass
     
     '''reg = Wrapper()
     # reg.predict() uses the predict() function from FacialRecognition class in facerec.py. The predict() function

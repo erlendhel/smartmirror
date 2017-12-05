@@ -39,9 +39,7 @@ class Source(object):
     # Function to get the name of the source given by the id in the newsSources list
     # Returns type: str
     def init_name(self, source_id):
-        print('Entered init_name')
         if newsSources is not None:
-            print('newsSources is not None')
             for newsSource in newsSources:
                 if newsSource['id'] == source_id:
                     name = newsSource['name']
