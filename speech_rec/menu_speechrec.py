@@ -49,11 +49,20 @@ class MenuSpeech(object):
             print('Going to: ', self.selected_news)
         elif self.logout_command(command):
             return "logout"
+        elif command == 'Hello' or command =='hello':
+            return "hello"
 
     def weather_speech(self):
         command = self.recognizer.get_audio()
         if self.back_command(command):
             return "back"
+
+    # Only listening for the user asking to go back to main menu
+    def back_speech(self):
+        command = self.recognizer.get_audio()
+        if self.back_command(command):
+            return "back"
+        
 
 
     # TODO: Used in startup to assign a user's preferred news. Gets values from the database based on id
@@ -104,14 +113,22 @@ class MenuSpeech(object):
             'not in','logmein','logan',
             'nothing','blogging','looking',
             'onions', 'bullying','sending',
-            'finding'
+            'finding','london'
         ]
+
+        command = command.lower()
+        
+        for valid in valid_commands:
+            if command == valid:
+                return True
+
+        return False
         
         # Check if the  command is in the valid_commands list
         # lower() will make the string lowercase,
         # used to shrinken size of command list
-        if any(command.lower() in s for s in valid_commands):
-            return True
+        #if any(command.lower() in s for s in valid_commands):
+            #return True
 
     def logout_command(self, command):
         if command is None:
@@ -121,14 +138,22 @@ class MenuSpeech(object):
             'sign out', 'log out', 'logout',
             'sign off','signout', 'log off'
             'logoff', 'lookout', 'look up',
-            'no doubt'
+            'no doubt', 'look at'
         ]
+
+        command = command.lower()
+        
+        for valid in valid_commands:
+            if command == valid:
+                return True
+
+        return False
         
         # Check if the  command is in the valid_commands list
         # lower() will make the string lowercase,
         # used to shrinken size of command list
-        if any(command.lower() in s for s in valid_commands):
-            return True
+        #if any(command.lower() in s for s in valid_commands):
+        #    return True
 
     # Function to determine if a user has issued a register command, iterates through
     # a list of valid commands and returns true if the given input matches a valid command.
@@ -141,9 +166,17 @@ class MenuSpeech(object):
             'register','registration','sign up'
         ]
 
+        command = command.lower()
+        
+        for valid in valid_commands:
+            if command == valid:
+                return True
+
+        return False
+        
         # Check if the  command is in the valid_commands list
-        if any(command.lower() in s for s in valid_commands):
-            return True
+        #if any(command.lower() in s for s in valid_commands):
+        #    return True
 
     # Function to determine if a user has issued a command to login as a guest, iterates through
     # a list of valid commands and returns true if the given input matches a valid command.
@@ -158,9 +191,17 @@ class MenuSpeech(object):
             'desk', 'best'
         ]
 
+        command = command.lower()
+
+        for valid in valid_commands:
+            if command == valid:
+                return True
+
+        return False
+
         # Check if the  command is in the valid_commands list
-        if any(command.lower() in s for s in valid_commands):
-            return True
+        # if any(command.lower() in s for s in valid_commands):
+        #    return True
 
     def back_command(self, command):
         if command is None:
@@ -171,12 +212,21 @@ class MenuSpeech(object):
             'main menu', 'menu','black',
             'call back','callback','tobacco',
             'brought back', 'dekk', 'bolt back',
-            'baalbek'
+            'baalbek', 'min meny', 'main',
+            'birkbeck','golf back'
             ]
+        
+        command = command.lower()
+        
+        for valid in valid_commands:
+            if command == valid:
+                return True
 
+        return False
+        
         # Check if the  command is in the valid_commands list
-        if any(command.lower() in s for s in valid_commands):
-            return True
+        #if any(command.lower() in s for s in valid_commands):
+        #    return True
 
     # TODO: OLD!!! MAYBE REDUNDANT
     # Uses the list of preferred news defined in News.py. This list will be

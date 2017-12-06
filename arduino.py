@@ -18,3 +18,9 @@ class Arduino():
     def write(self, command):
         print("Writing to pin " + str(command))
         self.serial_connection.write(command)
+
+    def read(self):
+        message = self.serial_connection.readline()
+        print(message)
+
+

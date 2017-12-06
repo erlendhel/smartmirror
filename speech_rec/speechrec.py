@@ -22,6 +22,6 @@ class SpeechRecognition(object):
                 print('Could not understand audio')
                 return None
             except sr.RequestError as e:
-                print('Could not request resuslts; {0}'.format(e))
+                print('Could not request results; {0}'.format(e))
                 return None
 

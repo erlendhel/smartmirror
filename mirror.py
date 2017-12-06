@@ -53,7 +53,7 @@ travel = travel.Travel()
 registration = wrapper.Wrapper()
 menu_speech = menu_speechrec.MenuSpeech()
 face_rec = None
-arduino = arduino.Arduino()
+tarduino = arduino.Arduino()
 active_user = None
 new_user_logged_in = False
 
@@ -79,14 +79,6 @@ class User():
         username = ""
         user_id = None
         path_to_faceimg = ""
-
-class VoiceWrapper():
-    first_startup = bool()
-    progress_bar = ObjectProperty()
-    started_recording = bool()
-    wait = bool()
-    progress_bar_created = False
-    in_screen = bool()
 
 
 user = User()
@@ -146,10 +138,10 @@ class StartupScreen(Screen):
         print("Getting ready to record voice...")
         sleep(delay)
         print("Starting thread " + threadName)
-        if self.progress_bar_created is False:
-            self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
-            self.add_widget(self.progress_bar)
-            self.progress_bar_created = True
+        
+        self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
+        self.add_widget(self.progress_bar)
+        self.progress_bar_created = True
         
         _thread.start_new_thread(self.update_bar,("login screen progressbar updater",0))
         
@@ -168,6 +160,9 @@ class StartupScreen(Screen):
             else:
                 print("Did not recognize command")
 
+        self.remove_widget(self.progress_bar)
+        self.in_screen = False
+
                 
     def update_bar(self, threadName, delay):
         print("Starting thread "+ threadName)
@@ -179,7 +174,7 @@ class StartupScreen(Screen):
             if self.progress_bar.value <= 0 and self.refill is False:
                 self.wait = True
                 self.refill = True
-                print(timer.get_time_in_seconds())
+                print("Time used to process voice: " + str(timer.get_time_in_seconds())[:3])
                 timer.restart()
             elif self.started_recording is True and self.wait is False:
                 if self.refill is True:
@@ -192,6 +187,10 @@ class StartupScreen(Screen):
         self.in_screen = False
         self.progress_bar.value = 100
         self.refill = False
+
+    def on_pre_leave(self):
+        self.in_screen = False
+        
         
         
 
@@ -366,10 +365,10 @@ class MainScreen(Screen):
     def record_speech(self, threadName, delay):
         print("Getting ready to record voice")
         sleep(delay)
-        if self.progress_bar_created is False:
-            self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
-            self.add_widget(self.progress_bar)
-            self.progress_bar_created = True
+
+        self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
+        self.add_widget(self.progress_bar)
+        self.progress_bar_created = True
         print("Starting thread " + threadName) 
 
         _thread.start_new_thread(self.update_bar,("main screen progressbar updater",0))
@@ -389,11 +388,17 @@ class MainScreen(Screen):
             elif command == "logout":
                 self.parent.current = 'startup'
                 valid_command = True
+            elif command == "hello":
+                global tarduino
+                tarduino.write(b's')
             else:
+                print(command)
                 print("Did not recognize command")
                 
 
         print("Leaving thread " + threadName)
+        self.remove_widget(self.progress_bar)
+        self.in_screen = False
             
 
     
@@ -408,7 +413,7 @@ class MainScreen(Screen):
             if self.progress_bar.value <= 0 and self.refill is False:
                 self.wait = True
                 self.refill = True
-                print("Time to empty progressbar: " + str(timer.get_time_in_seconds()))
+                print("Time used to process voice: " + str(timer.get_time_in_seconds())[:3])
                 timer.restart()
             elif self.started_recording is True and self.wait is False:
                 if self.refill is True:
@@ -423,6 +428,11 @@ class MainScreen(Screen):
         self.in_screen = False
         self.progress_bar.value = 100
         self.refill = False
+        self.remove_widget(self.progress_bar)
+
+    def on_pre_leave(self):
+        self.in_screen = False
+        
 
 class NavigationGrid(GridLayout):
     pass
@@ -584,8 +594,10 @@ class SettingButton(Button):
         super(SettingButton, self).__init__(**kwargs)
 
     def start_arduino(self):
-        if arduino.is_connected() is True:
-            arduino.write(b'12')
+        if tarduino.is_connected() is True:
+            tarduino.write(b'12')
+
+    
 
 
 class NewsScreen(Screen):
@@ -717,7 +729,6 @@ class DescriptionLabel(Label):
 
 class WeatherScreen(Screen):
     # Variables used to control voice GUI
-    first_startup = bool()
     progress_bar = ObjectProperty()
     started_recording = bool()
     wait = bool()
@@ -735,16 +746,16 @@ class WeatherScreen(Screen):
     def on_enter(self):
         print("Entered weather screen")
         self.in_screen = True
-        _thread.start_new_thread(self.record_speech,("weather-screen-speech",1))
+        _thread.start_new_thread(self.record_speech,("weather screen speechrecognition",1))
 
     def record_speech(self, threadName, delay):
-        print("Getting ready to record voice")
+        print("Getting ready to record voice in weather screen...")
         sleep(delay)
         print("Starting thread " + threadName)
-        if self.progress_bar_created is False:
-            self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-310))
-            self.add_widget(self.progress_bar)
-            self.progress_bar_created = True
+        
+        self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-310))
+        self.add_widget(self.progress_bar)
+        self.progress_bar_created = True
         
         _thread.start_new_thread(self.update_bar,("weather screen progressbar updater",0))
         
@@ -759,6 +770,10 @@ class WeatherScreen(Screen):
                 valid_command = True
             else:
                 print("Did not recognize command")
+                
+        print("Leaving thread " + threadName)
+        self.remove_widget(self.progress_bar)
+        self.in_screen = False
 
     def update_bar(self, name, delay):
         print("Starting thread " + name)
@@ -771,7 +786,7 @@ class WeatherScreen(Screen):
             if self.progress_bar.value <= 0 and self.refill is False:
                 self.wait = True
                 self.refill = True
-                print("Time to empty progressbar: " + str(timer.get_time_in_seconds()))
+                print("Time to used to process voice: " + str(timer.get_time_in_seconds())[:3])
                 timer.restart()
             elif self.started_recording is True and self.wait is False:
                 if self.refill is True:
@@ -857,7 +872,83 @@ class WeekWeatherLayout(GridLayout):
 
 
 class SettingScreen(Screen):
-    pass
+    # Variables used to control voice GUI
+    progress_bar = ObjectProperty()
+    started_recording = bool()
+    wait = bool()
+    in_screen = bool()
+    refill = bool()
+    
+    def __init__(self, **kwargs):
+        super(SettingScreen, self).__init__(**kwargs)
+        
+
+    def on_enter(self):
+        print("Entered setting screen")
+        self.in_screen = True
+        _thread.start_new_thread(self.record_speech,("setting screen speechrecognition",0.5))
+        
+
+    def record_speech(self, threadName, delay):
+        print("Getting ready to record voice in settings screen...")
+        sleep(delay)
+
+        self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
+        self.add_widget(self.progress_bar)
+        self.progress_bar_created = True
+        print("Starting thread " + threadName) 
+
+        _thread.start_new_thread(self.update_bar,("settings screen progressbar updater",0))
+        
+        valid_command = False
+        while valid_command is False and self.in_screen is True:
+            self.started_recording = True
+            self.wait = False  
+            command = menu_speech.back_speech()
+            self.started_recording = False
+            if command == "back":
+                self.parent.current = 'main'
+                valid_command = True
+            else:
+                print("Did not recognize command")
+                
+
+        print("Leaving thread " + threadName)
+        self.remove_widget(self.progress_bar)
+        self.in_screen = False
+            
+
+    
+    def update_bar(self, name, delay):
+        print("Starting thread " + name)
+        iterations = 225 
+        self.wait = False
+        self.refill = False
+        timer = time_module.Timer()
+        while self.in_screen:
+            sleep(0.01)   
+            if self.progress_bar.value <= 0 and self.refill is False:
+                self.wait = True
+                self.refill = True
+                print("Time used to process voice: " + str(timer.get_time_in_seconds())[:3])
+                timer.restart()
+            elif self.started_recording is True and self.wait is False:
+                if self.refill is True:
+                    self.progress_bar.value = 100
+                    self.refill = False
+                self.progress_bar.value = self.progress_bar.value - self.progress_bar.max / iterations
+
+        print("Leaving thread " + name)
+
+
+    def on_leave(self):
+        self.in_screen = False
+        self.refill = False
+        self.remove_widget(self.progress_bar)
+
+    def on_pre_leave(self):
+        self.in_screen = False
+    
 
 
 class LogoutButton(Button):
