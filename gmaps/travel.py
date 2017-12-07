@@ -63,7 +63,3 @@ class Travel(object):
                                                           language=language)
         return distance_matrix
 
-while True:
-    t = Travel()
-    print(t.get_travel_time('Kongsberg', 'driving'))
-    print(t.get_travel_time('Drammen', 'walking'))

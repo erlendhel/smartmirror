@@ -4,7 +4,12 @@ bbc = [
     'bbc-news',
     'bbc',
     'bbc news',
-    'BBC'
+    'BBC',
+    'BDM'
+    'Beauty',
+    'BT',
+    'BBC News',
+    'DDP'
 ]
 bbc_sport = [
     'bbc-sport',
@@ -29,7 +34,9 @@ engadged = [
 ]
 espn = [
     'espn',
-    'ESPN'
+    'ESPN',
+    '8 p.m',
+    'ESP'
 ]
 financial_times = [
     'financial-times',
@@ -86,7 +93,8 @@ time = [
     'time',
     'time magazine',
     'time-magazine',
-    'Time Magazine'
+    'Time Magazine',
+    'timer'
 ]
 
 sources = {

@@ -122,7 +122,8 @@ class MenuSpeech(object):
             'nothing','blogging','looking',
             'onions', 'bullying','sending',
             'finding','london', 'phantom',
-            'find him','tanning'
+            'find him','tanning', 'simon',
+            'find in'
         ]
 
         command = command.lower()
@@ -148,10 +149,16 @@ class MenuSpeech(object):
             'sign off','signout', 'log off'
             'logoff', 'lookout', 'look up',
             'no doubt', 'look at','knockout',
-            'got out', 'look out','google'
+            'got out', 'look out','google',
+            'return', 'knocked up', 'adult',
+            'bergen', 'guardian', 'not up',
+            'renault', 'bob hope', 'return',
+            'mcgowan'
         ]
 
         command = command.lower()
+        if 'out' in command:
+            return True
         
         for valid in valid_commands:
             if command == valid:
@@ -224,7 +231,8 @@ class MenuSpeech(object):
             'brought back', 'dekk', 'bolt back',
             'baalbek', 'min meny', 'main',
             'birkbeck','golf back', 'bullock',
-            'blu-tack','backwards', 'return'
+            'blu-tack','backwards', 'return',
+            'returned'
             ]
         
         command = command.lower()

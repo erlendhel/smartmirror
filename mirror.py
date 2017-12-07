@@ -41,9 +41,9 @@ Config.set('graphics', 'resizable',0)
 Window.size = (int(600 / 1.13) ,int(800 / 1.13)) # (int(600 / 1.11) ,int(800 / 1.11)) => b = 15cm, l = 20cm
 
 Config.set('graphics', 'position', 'custom')
-#Config.set('graphics', 'borderless', 1)
+Config.set('graphics', 'borderless', 1)
 Window.resizable = 0
-#Window.borderless = 1
+Window.borderless = 1
 
 Window.left = 0
 Window.top = 0
