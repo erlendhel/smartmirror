@@ -54,8 +54,9 @@ registration = wrapper.Wrapper()
 menu_speech = menu_speechrec.MenuSpeech()
 face_rec = None
 tarduino = arduino.Arduino()
-active_user = None
+active_user = dict()
 new_user_logged_in = False
+guest_login = False
 
 # This list contains a list of three preferred(chosen) sources.
 # Fetched when login in by adding the news soruces from the user database
@@ -70,7 +71,7 @@ chosenTitles = list()
 chosenArticle = dict()
 
 # TODO: Might be removed??
-class User():
+'''class User():
     username = str()
     user_id = int()
     path_to_faceimg = str()
@@ -78,10 +79,15 @@ class User():
     def clear_all(self):
         username = ""
         user_id = None
-        path_to_faceimg = ""
+        path_to_faceimg = ""'''
 
 
-user = User()
+def set_titles(source):
+    articles = registration.get_articles_by_source(source)
+    
+    # Set the global variable to contain the articles based on what icon was clicked
+    global chosenTitles
+    chosenTitles = articles
 
 
 # Used in several classes used to set weather image paths
@@ -126,25 +132,34 @@ class StartupScreen(Screen):
 
     def on_enter(self):
         print("Entered startup screen")
+        global guest_login
+        guest_login = False
         self.in_screen = True
         if self.first_startup is True:
-            _thread.start_new_thread(self.record_speech,("menu-voice-recording",20))
+            _thread.start_new_thread(self.record_speech,("startup screen voicerecognition",20))
             self.first_startup = False
         else:
-            _thread.start_new_thread(self.record_speech,("menu-voice-recording",1))
+            _thread.start_new_thread(self.record_speech,("startup screen voicerecognition",1))
         
 
     def record_speech(self, threadName, delay):
-        print("Getting ready to record voice...")
+        print("Getting ready to record voice in startup screen...")
         sleep(delay)
-        print("Starting thread " + threadName)
         
         self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
         self.add_widget(self.progress_bar)
         self.progress_bar_created = True
+
+        while menu_speech.is_busy():
+            print("Microphone is busy, thread " + threadName + " sleeps for 0.5s")
+            sleep(0.5)
+
+        print("Starting thread " + threadName)
         
-        _thread.start_new_thread(self.update_bar,("login screen progressbar updater",0))
-        
+        # Start thread to continiously update the progress bar indicating when the user can speak
+        _thread.start_new_thread(self.update_bar,("startup screen progressbar updater",0))
+
+        # Listens for a command until it finds a valid one
         valid_command = False
         while valid_command is False and self.in_screen is True:
             self.started_recording = True
@@ -155,6 +170,8 @@ class StartupScreen(Screen):
                 self.parent.current = 'facerec'
                 valid_command = True
             elif command == "guest":
+                global guest_login
+                guest_login = True
                 self.parent.current = 'main'
                 valid_command = True
             else:
@@ -163,7 +180,8 @@ class StartupScreen(Screen):
         self.remove_widget(self.progress_bar)
         self.in_screen = False
 
-                
+    # Runs in seperate thread to update the progress bar
+    # Used to indicate to user when the voice is recording
     def update_bar(self, threadName, delay):
         print("Starting thread "+ threadName)
         iterations = 225 
@@ -191,18 +209,6 @@ class StartupScreen(Screen):
     def on_pre_leave(self):
         self.in_screen = False
         
-        
-        
-
-
-                
-            
-
-    def update_progressbar(self, *args):
-        if self.progress_bar.value <= 0:
-            self.progress_bar.value = 100
-        else:
-            self.progress_bar.value = self.progress_bar.value - 7.5
             
 class FaceRecognitionScreen(Screen):
 
@@ -235,7 +241,6 @@ class FaceRecognitionScreen(Screen):
             global preferredNews
             preferredNews.clear()
             preferredNews = news.set_preferred_sources(news_list)
-            
 
             # Used to set the news sources for the active user just once (first time entering main screen)
             global new_user_logged_in
@@ -270,7 +275,6 @@ class FaceRecognitionScreen(Screen):
 
 
 class RegistrationScreen(Screen):
-    user = User()
     
     
     def __init__(self, **kwargs):
@@ -336,11 +340,9 @@ class FaceRegistrationScreen(Screen):
 
 class MainScreen(Screen):
     # Variables used to control voice GUI
-    first_startup = bool()
     progress_bar = ObjectProperty()
     started_recording = bool()
     wait = bool()
-    progress_bar_created = False
     in_screen = bool()
     refill = bool()
     
@@ -355,11 +357,28 @@ class MainScreen(Screen):
             self.ids.icon_container.set_news_icons()
             self.ids.nav_label.set_destination_from_db()
             new_user_logged_in = False
-
+    
+    
     def on_enter(self):
         print("Entered main screen")
+        global guest_login
+        if guest_login is True:
+            print("Logged in as guest")
+            news_list = ['daily-mail', 'the-new-york-times','mirror']
+            global preferredNews
+            preferredNews.clear()
+            preferredNews = news.set_preferred_sources(news_list)
+            self.ids.icon_container.set_news_icons()
+
+            # Set news to active user so the speech recognition can be
+            # used on news even though a guest is logged in
+            active_user['news_source_one'] = news_list[0]
+            active_user['news_source_two'] = news_list[1]
+            active_user['news_source_two'] = news_list[2]
+        else:
+            menu_speech.assign_pref_news(active_user['id'])
         self.in_screen = True
-        _thread.start_new_thread(self.record_speech,("main-screen-voice-recording",0.5))
+        _thread.start_new_thread(self.record_speech,("main screen-voicerecognition",0.5))
         
 
     def record_speech(self, threadName, delay):
@@ -369,14 +388,20 @@ class MainScreen(Screen):
         self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
         self.add_widget(self.progress_bar)
         self.progress_bar_created = True
-        print("Starting thread " + threadName) 
-
-        _thread.start_new_thread(self.update_bar,("main screen progressbar updater",0))
         
+
+        while menu_speech.is_busy():
+            print("Microphone is busy, thread " + threadName + " sleeps for 0.5s")
+            sleep(0.5)
+        
+        print("Starting thread " + threadName) 
+        _thread.start_new_thread(self.update_bar,("main screen progressbar updater",0))
+
+        # Loop until a valid command is found, then enter new screen and exit thread
         valid_command = False
-        while valid_command is False and self.in_screen is True:
+        while (valid_command is False) and (self.in_screen is True):
             self.started_recording = True
-            self.wait = False  
+            self.wait = False
             command = menu_speech.main_menu_speech()
             self.started_recording = False
             if command == "weather":
@@ -385,20 +410,29 @@ class MainScreen(Screen):
             elif command == "settings":
                 self.parent.current = 'settings'
                 valid_command = True
+            elif (command == active_user['news_source_one'] or\
+                 command == active_user['news_source_two'] or \
+                 command == active_user['news_source_three']):
+                set_titles(command)
+                self.parent.current = 'source'
+                valid_command = True
             elif command == "logout":
+                global guest_login
+                guest_login = False
                 self.parent.current = 'startup'
                 valid_command = True
             elif command == "hello":
                 global tarduino
-                tarduino.write(b's')
+                if tarduino.is_connected():
+                    tarduino.write(b's')
             else:
-                print(command)
                 print("Did not recognize command")
                 
 
         print("Leaving thread " + threadName)
         self.remove_widget(self.progress_bar)
         self.in_screen = False
+
             
 
     
@@ -566,11 +600,15 @@ class SourceLayout(GridLayout):
         
 
 
-    # Get the ids of the chosen preferred sources fetched from the user DB
+    # Get the ids of the chosen preferred sources fetched from the user DB (or hard-coded if guest)
     # These ids will be used to identify the different icons on the main screen
     # Called when entering main screen
     def set_news_icons(self):
-        print("Setting " + active_user['name'] + "'s favorite news sources")
+        global guest_login
+        if guest_login is True:
+            print("Setting news sources for guest")
+        else:
+            print("Setting " + active_user['name'] + "'s favorite news sources")
         self.clear_widgets()
         self.preferredNewsIDs.clear()
         for x in range(len(preferredNews)):
@@ -632,8 +670,16 @@ class NewsIcon(Button):
         chosenTitles = articles
 
 
+
 class NewsSourceScreen(Screen):
     titles = ListProperty()
+
+    # Variables used to control voice GUI
+    progress_bar = ObjectProperty()
+    started_recording = bool()
+    wait = bool()
+    in_screen = bool()
+    refill = bool()
 
     # Sets the titles based on what source is clicked from MainScreen
     # Before this function runs, NewsIcon::set_titles() has appended
@@ -647,6 +693,7 @@ class NewsSourceScreen(Screen):
         # Clear previous widgets in layout
         self.ids.grid.clear_widgets()
         self.ids.grid.add_widget(Image(source="icons/news/" + self.titles[0]['article_id'][:-1] + ".png"))
+        
 
         # Add one button for each title in the source
         for i in range(len(self.titles)):
@@ -661,12 +708,72 @@ class NewsSourceScreen(Screen):
             button = TitleButton(text=title_text, id=self.titles[i]['article_id'])
             self.ids.grid.add_widget(button)
 
+
         # Add a button to go back to main screen
         self.ids.grid.add_widget(BackButton())
 
     def on_enter(self):
-        #print("Entered news source screen")
-        pass
+        self.in_screen = True
+        _thread.start_new_thread(self.record_speech,("news screen voicerecognition",0.5))
+
+    def record_speech(self, threadName, delay):
+        print("Getting ready to record voice in news source screen...")
+        sleep(delay)
+        
+        
+        self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-290))
+        self.add_widget(self.progress_bar)
+
+        while menu_speech.is_busy():
+            print("Microphone is busy, thread " + threadName + " sleeps for 0.5s")
+            sleep(0.5)
+
+        print("Starting thread " + threadName)
+        
+        _thread.start_new_thread(self.update_bar,("news source screen progressbar updater",0))
+        
+        valid_command = False
+        while valid_command is False and self.in_screen is True:
+            self.started_recording = True
+            self.wait = False
+            command = menu_speech.back_speech()
+            self.started_recording = False
+            if command == "back":
+                self.parent.current = 'main'
+                valid_command = True
+            else:
+                print("Did not recognize command")
+                
+        print("Leaving thread " + threadName)
+        self.remove_widget(self.progress_bar)
+        self.in_screen = False
+
+    def update_bar(self, name, delay):
+        print("Starting thread " + name)
+        iterations = 225 
+        self.wait = False
+        self.refill = False
+        timer = time_module.Timer()
+        while self.in_screen:
+            sleep(0.01)   
+            if self.progress_bar.value <= 0 and self.refill is False:
+                self.wait = True
+                self.refill = True
+                print("Time to used to process voice: " + str(timer.get_time_in_seconds())[:3])
+                timer.restart()
+            elif self.started_recording is True and self.wait is False:
+                if self.refill is True:
+                    self.progress_bar.value = 100
+                    self.refill = False
+                self.progress_bar.value = self.progress_bar.value - self.progress_bar.max / iterations
+
+        print("Leaving thread " + name)
+
+    def on_leave(self):
+        self.in_screen = False
+
+
+    
 
 class TitleButton(Button):
     article = DictProperty()
@@ -732,7 +839,6 @@ class WeatherScreen(Screen):
     progress_bar = ObjectProperty()
     started_recording = bool()
     wait = bool()
-    progress_bar_created = False
     in_screen = bool()
     refill = bool()
     
@@ -751,11 +857,15 @@ class WeatherScreen(Screen):
     def record_speech(self, threadName, delay):
         print("Getting ready to record voice in weather screen...")
         sleep(delay)
-        print("Starting thread " + threadName)
         
         self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-310))
         self.add_widget(self.progress_bar)
-        self.progress_bar_created = True
+
+        while menu_speech.is_busy():
+            print("Microphone is busy, thread " + threadName + " sleeps for 0.5s")
+            sleep(0.5) 
+        
+        print("Starting thread " + threadName)
         
         _thread.start_new_thread(self.update_bar,("weather screen progressbar updater",0))
         
@@ -895,7 +1005,11 @@ class SettingScreen(Screen):
 
         self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
         self.add_widget(self.progress_bar)
-        self.progress_bar_created = True
+
+        while menu_speech.is_busy():
+            print("Microphone is busy, thread " + threadName + " sleeps for 0.5s")
+            sleep(0.5)
+        
         print("Starting thread " + threadName) 
 
         _thread.start_new_thread(self.update_bar,("settings screen progressbar updater",0))

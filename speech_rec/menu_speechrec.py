@@ -23,6 +23,10 @@ class MenuSpeech(object):
         if command == 'Wake up mirror' or command == 'wake up mirror':
             print('Initialize smartmirror')
 
+    # Chech to see if microphone is opened
+    def is_busy(self):
+        return self.recognizer.is_busy()
+
     # Function used in the login screen, takes voice commands and determines the validity
     # of the given commands.
     def login_screen(self):
@@ -47,6 +51,7 @@ class MenuSpeech(object):
             return "settings"
         elif self.determine_news_source(command):
             print('Going to: ', self.selected_news)
+            return self.selected_news
         elif self.logout_command(command):
             return "logout"
         elif command == 'Hello' or command =='hello':
@@ -100,6 +105,9 @@ class MenuSpeech(object):
             elif source == 'time':
                 self.news_list.append(news_keywords.time)
 
+        print("Prefered news has been assigned in menu_speechrec")
+        
+
     # Function to determine if a user has issued a login command, iterates through
     # a list of valid commands and returns true if the given input matches a valid command.
     # Passes if not
@@ -138,7 +146,8 @@ class MenuSpeech(object):
             'sign out', 'log out', 'logout',
             'sign off','signout', 'log off'
             'logoff', 'lookout', 'look up',
-            'no doubt', 'look at'
+            'no doubt', 'look at','knockout',
+            'got out'
         ]
 
         command = command.lower()
@@ -188,7 +197,7 @@ class MenuSpeech(object):
         valid_commands = [
             'guest','guess','log in as guest'
             'login as guest', 'sign in as guest'
-            'desk', 'best'
+            'desk', 'best','just','test'
         ]
 
         command = command.lower()
@@ -213,7 +222,7 @@ class MenuSpeech(object):
             'call back','callback','tobacco',
             'brought back', 'dekk', 'bolt back',
             'baalbek', 'min meny', 'main',
-            'birkbeck','golf back'
+            'birkbeck','golf back', 'bullock '
             ]
         
         command = command.lower()
