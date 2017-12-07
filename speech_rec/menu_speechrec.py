@@ -121,7 +121,8 @@ class MenuSpeech(object):
             'not in','logmein','logan',
             'nothing','blogging','looking',
             'onions', 'bullying','sending',
-            'finding','london'
+            'finding','london', 'phantom',
+            'find him','tanning'
         ]
 
         command = command.lower()
@@ -135,7 +136,7 @@ class MenuSpeech(object):
         # Check if the  command is in the valid_commands list
         # lower() will make the string lowercase,
         # used to shrinken size of command list
-        #if any(command.lower() in s for s in valid_commands):
+        # if any(command.lower() in s for s in valid_commands):
             #return True
 
     def logout_command(self, command):
@@ -147,7 +148,7 @@ class MenuSpeech(object):
             'sign off','signout', 'log off'
             'logoff', 'lookout', 'look up',
             'no doubt', 'look at','knockout',
-            'got out'
+            'got out', 'look out','google'
         ]
 
         command = command.lower()
@@ -222,11 +223,16 @@ class MenuSpeech(object):
             'call back','callback','tobacco',
             'brought back', 'dekk', 'bolt back',
             'baalbek', 'min meny', 'main',
-            'birkbeck','golf back', 'bullock '
+            'birkbeck','golf back', 'bullock',
+            'blu-tack','backwards', 'return'
             ]
         
         command = command.lower()
-        
+       
+        # Check if the command contains 'back' as a substring
+        if "back" in command:
+            return True
+
         for valid in valid_commands:
             if command == valid:
                 return True

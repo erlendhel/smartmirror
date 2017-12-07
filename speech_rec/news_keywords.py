@@ -80,6 +80,7 @@ the_new_york_times = [
     'new-york-times',
     'New York time',
     'NY Times'
+    'New York Times'
 ]
 time = [
     'time',

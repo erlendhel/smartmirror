@@ -23,6 +23,8 @@ from kivy.uix.progressbar import ProgressBar
 from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
 from kivy.config import Config
+from kivy.uix.screenmanager import SlideTransition
+from kivy.uix.screenmanager import SwapTransition
 
 # Own modules
 from weather import Weather
@@ -69,17 +71,6 @@ chosenTitles = list()
 # This dict is set when a source title is clicked in the NewsSourceScreen
 # Is set in TitleButton::set_article()
 chosenArticle = dict()
-
-# TODO: Might be removed??
-'''class User():
-    username = str()
-    user_id = int()
-    path_to_faceimg = str()
-
-    def clear_all(self):
-        username = ""
-        user_id = None
-        path_to_faceimg = ""'''
 
 
 def set_titles(source):
@@ -129,7 +120,8 @@ class StartupScreen(Screen):
         self.first_startup = True
         
 
-
+    # On the first enter, wait 20 seconds to start recording audio
+    # This is to avoid any unwanted commands on startup
     def on_enter(self):
         print("Entered startup screen")
         global guest_login
@@ -141,15 +133,21 @@ class StartupScreen(Screen):
         else:
             _thread.start_new_thread(self.record_speech,("startup screen voicerecognition",1))
         
-
+    # Runs in seperate thread
     def record_speech(self, threadName, delay):
         print("Getting ready to record voice in startup screen...")
         sleep(delay)
-        
+       
+        # Create a new progress bar on every entry to the screen
+        # This must be done to prevent some bugs with the bar sometimes freezing
         self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
         self.add_widget(self.progress_bar)
         self.progress_bar_created = True
-
+        
+        # If the microphone hasn't been closed, wait for it to close
+        # Happens if the user uses the mouse to navigate instead of speech
+        # as the voice recording thread in the screen left will finish the last
+        # iteration of the while loop
         while menu_speech.is_busy():
             print("Microphone is busy, thread " + threadName + " sleeps for 0.5s")
             sleep(0.5)
@@ -160,6 +158,7 @@ class StartupScreen(Screen):
         _thread.start_new_thread(self.update_bar,("startup screen progressbar updater",0))
 
         # Listens for a command until it finds a valid one
+        # Currently no action to enter the registration module
         valid_command = False
         while valid_command is False and self.in_screen is True:
             self.started_recording = True
@@ -167,16 +166,25 @@ class StartupScreen(Screen):
             command = menu_speech.login_screen()
             self.started_recording = False
             if command == "login":
+                #Set proper screen transition parameters
+                self.parent.transition = SlideTransition()
+                self.parent.transition.direction = 'left'
                 self.parent.current = 'facerec'
                 valid_command = True
             elif command == "guest":
                 global guest_login
                 guest_login = True
+
+                #Set proper screen transition parameters
+                self.parent.transiiton = SlideTransition()
+                self.parent.transition.direction = 'left'
                 self.parent.current = 'main'
                 valid_command = True
             else:
                 print("Did not recognize command")
-
+        
+        # Remove the progress bar when leaving the thread (i.e when leaving screen)
+        # This is to prevent some bugs where the progress bar stops updating
         self.remove_widget(self.progress_bar)
         self.in_screen = False
 
@@ -196,19 +204,21 @@ class StartupScreen(Screen):
                 timer.restart()
             elif self.started_recording is True and self.wait is False:
                 if self.refill is True:
-                    self.progress_bar.value = 100
+                    # Remove the previous bar and create a new one every time it empties
+                    # To prevent bug where the bar freezes
                     self.refill = False
+                    self.remove_widget(self.progress_bar)
+                    self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
+                    self.add_widget(self.progress_bar)
+
+                # Slowly decrease the value of the progress bar
                 self.progress_bar.value = self.progress_bar.value - self.progress_bar.max / iterations
 
 
     def on_leave(self):
         self.in_screen = False
-        self.progress_bar.value = 100
         self.refill = False
 
-    def on_pre_leave(self):
-        self.in_screen = False
-        
             
 class FaceRecognitionScreen(Screen):
 
@@ -273,7 +283,7 @@ class FaceRecognitionScreen(Screen):
         self.ids.recognizing_label.text = "Recognizing face..."
         
 
-
+# Currently (07.12.2017)
 class RegistrationScreen(Screen):
     
     
@@ -361,6 +371,8 @@ class MainScreen(Screen):
     
     def on_enter(self):
         print("Entered main screen")
+
+        # If the user logs in as guest, set predefined news-sources
         global guest_login
         if guest_login is True:
             print("Logged in as guest")
@@ -374,27 +386,36 @@ class MainScreen(Screen):
             # used on news even though a guest is logged in
             active_user['news_source_one'] = news_list[0]
             active_user['news_source_two'] = news_list[1]
-            active_user['news_source_two'] = news_list[2]
+            active_user['news_source_three'] = news_list[2]
         else:
+            # Update the news list in speechrecognition module so it knows
+            # which commands to look for
             menu_speech.assign_pref_news(active_user['id'])
         self.in_screen = True
+        
+        # Start new thread listening for voice commands from the user
         _thread.start_new_thread(self.record_speech,("main screen-voicerecognition",0.5))
         
-
+    # Runs in seperate thread
     def record_speech(self, threadName, delay):
         print("Getting ready to record voice")
         sleep(delay)
-
+        
+        # Create a progress bar on every entry of the screen
+        # This is done to prevent some bugs where the bar freezes
         self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
         self.add_widget(self.progress_bar)
         self.progress_bar_created = True
         
-
+        # Checks if the microfone is currently opened by another thread
         while menu_speech.is_busy():
             print("Microphone is busy, thread " + threadName + " sleeps for 0.5s")
             sleep(0.5)
         
         print("Starting thread " + threadName) 
+
+        # Start new thread which continiously updates the progress bar
+        # used to indicate to the user when he/she can speek
         _thread.start_new_thread(self.update_bar,("main screen progressbar updater",0))
 
         # Loop until a valid command is found, then enter new screen and exit thread
@@ -405,20 +426,34 @@ class MainScreen(Screen):
             command = menu_speech.main_menu_speech()
             self.started_recording = False
             if command == "weather":
+                #Set proper screen transition parameters
+                self.parent.transition = SlideTransition()
+                self.parent.transition.direction = 'left'
                 self.parent.current = 'weather'
                 valid_command = True
             elif command == "settings":
+                #Set proper screen transition parameters
+                self.parent.transition = SlideTransition()
+                self.parent.transition.direcetion = 'left'
                 self.parent.current = 'settings'
                 valid_command = True
             elif (command == active_user['news_source_one'] or\
                  command == active_user['news_source_two'] or \
                  command == active_user['news_source_three']):
+                # Set the titles from the active users preferred news sources
                 set_titles(command)
+
+                #Set proper screen transition parameters
+                self.parent.transition = SlideTransition()
+                self.parent.transition.direction ='left'
                 self.parent.current = 'source'
                 valid_command = True
             elif command == "logout":
                 global guest_login
                 guest_login = False
+
+                #Set proper screen transition parameters
+                self.parent.transition = SwapTransition()
                 self.parent.current = 'startup'
                 valid_command = True
             elif command == "hello":
@@ -430,10 +465,11 @@ class MainScreen(Screen):
                 
 
         print("Leaving thread " + threadName)
+
+        # Remove the progress bar when exiting the thread
+        # To prevent freezing of the bar
         self.remove_widget(self.progress_bar)
         self.in_screen = False
-
-            
 
     
     def update_bar(self, name, delay):
@@ -451,8 +487,14 @@ class MainScreen(Screen):
                 timer.restart()
             elif self.started_recording is True and self.wait is False:
                 if self.refill is True:
-                    self.progress_bar.value = 100
+                    # Remove the previous bar and create a new one every timeit empties
+                    # To prevent bug where the bar freezes
                     self.refill = False
+                    self.remove_widget(self.progress_bar)
+                    self.progress_bar = ProgressBar(max = 100, value=100, pos=(0,-300))
+                    self.add_widget(self.progress_bar)
+
+                # Slowly decrease the value of the progress bar
                 self.progress_bar.value = self.progress_bar.value - self.progress_bar.max / iterations
 
         print("Leaving thread " + name)
@@ -460,13 +502,8 @@ class MainScreen(Screen):
 
     def on_leave(self):
         self.in_screen = False
-        self.progress_bar.value = 100
         self.refill = False
-        self.remove_widget(self.progress_bar)
 
-    def on_pre_leave(self):
-        self.in_screen = False
-        
 
 class NavigationGrid(GridLayout):
     pass
@@ -485,7 +522,7 @@ class NavLabel(Label):
             self.travel_dict = travel.get_travel_time("Krona, Kongsberg", "driving")
             self.travel_mode = self.travel_dict['travel_mode']
 
-            # Get first word of string, quick fix of long destination name. TODO: edit
+            # Get first word of string, quick fix of long destination name. 
             destination = self.travel_dict['destination_name'].split(' ', 1)[0]
 
             # Set the displayed text
@@ -498,7 +535,7 @@ class NavLabel(Label):
             self.travel_dict = travel.get_travel_time(active_user['destination'], active_user['travel_type'])
             self.travel_mode = self.travel_dict['travel_mode']
 
-            # Get first word of string, quick fix of long destination name. TODO: edit
+            # Get first word of string, quick fix of long destination name.
             destination = self.travel_dict['destination_name'].split(' ', 1)[0]
 
             # Set the displayed text
@@ -577,6 +614,7 @@ class NewsButton(Button):
 
     def __init__(self, **kwargs):
         super(NewsButton, self).__init__(**kwargs)
+
         # Get the ids of the chosen preferred sources
         # These ids will be used to identify the different icons on the main screen
         for x in range(len(preferredNews)):
@@ -593,12 +631,6 @@ class SourceLayout(GridLayout):
     def __init__(self, **kwargs):
         super(SourceLayout, self).__init__(**kwargs)
         
-        '''for x in range(len(preferredNews)):
-            print(x)
-            self.preferredNewsIDs.append(preferredNews[x].source['source_id'])
-        '''
-        
-
 
     # Get the ids of the chosen preferred sources fetched from the user DB (or hard-coded if guest)
     # These ids will be used to identify the different icons on the main screen
@@ -611,6 +643,8 @@ class SourceLayout(GridLayout):
             print("Setting " + active_user['name'] + "'s favorite news sources")
         self.clear_widgets()
         self.preferredNewsIDs.clear()
+
+        # Loop through the preferredNews list and create three buttons with images
         for x in range(len(preferredNews)):
             self.preferredNewsIDs.insert(x,preferredNews[x].source['source_id'])
             button_background = "icons/news/" + str(self.preferredNewsIDs[x]) + ".png"
@@ -630,13 +664,13 @@ class SettingButton(Button):
     
     def __init__(self, **kwargs):
         super(SettingButton, self).__init__(**kwargs)
-
+    
+    # Obsolete, the arduino is started by voice command
     def start_arduino(self):
         if tarduino.is_connected() is True:
             tarduino.write(b'12')
 
     
-
 
 class NewsScreen(Screen):
     pass
@@ -671,6 +705,9 @@ class NewsIcon(Button):
 
 
 
+# There are some bugs with the title buttons in the news source screen
+# When it is entered with voice command. This does not happen when the news icon
+# button is pushed. The bug also seem to be random so I have no idea of how to fix it
 class NewsSourceScreen(Screen):
     titles = ListProperty()
 
@@ -682,10 +719,12 @@ class NewsSourceScreen(Screen):
     refill = bool()
 
     # Sets the titles based on what source is clicked from MainScreen
-    # Before this function runs, NewsIcon::set_titles() has appended
+    # If the button is clicked by mouse, NewsIcon::set_titles() has appended
     # the proper titles to the global list variable chosenTitles
+    # If navigating by voice, the global function set_titles() has appended
+    # the titles to the chosenTitles list
     def on_pre_enter(self):
-        #print("Loading news source screen")
+        print("Loading news source screen")
         # Set the titles to be displayed (dependent on chosen source)
         global chosenTitles
         self.titles = chosenTitles
@@ -720,18 +759,23 @@ class NewsSourceScreen(Screen):
         print("Getting ready to record voice in news source screen...")
         sleep(delay)
         
-        
+        # Add a progress bar on entry of screen 
         self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-290))
         self.add_widget(self.progress_bar)
-
+        
+        # If the microphone is opened by another thread, wait for it to finish
         while menu_speech.is_busy():
             print("Microphone is busy, thread " + threadName + " sleeps for 0.5s")
             sleep(0.5)
 
         print("Starting thread " + threadName)
-        
+
+        # Start thread to continiuosly update the progress bar
+        # Used to indicate when the user can speek
         _thread.start_new_thread(self.update_bar,("news source screen progressbar updater",0))
         
+        # Loop until a valid command has been found
+        # Thread will exit, and the application will leave the current screen
         valid_command = False
         while valid_command is False and self.in_screen is True:
             self.started_recording = True
@@ -739,12 +783,16 @@ class NewsSourceScreen(Screen):
             command = menu_speech.back_speech()
             self.started_recording = False
             if command == "back":
+                # Set parameters for screen transtition animation
+                self.parent.transition.direction = 'right'
                 self.parent.current = 'main'
                 valid_command = True
             else:
                 print("Did not recognize command")
                 
         print("Leaving thread " + threadName)
+        
+        # Remove progress bar when leaving screen
         self.remove_widget(self.progress_bar)
         self.in_screen = False
 
@@ -763,8 +811,12 @@ class NewsSourceScreen(Screen):
                 timer.restart()
             elif self.started_recording is True and self.wait is False:
                 if self.refill is True:
-                    self.progress_bar.value = 100
                     self.refill = False
+                    self.remove_widget(self.progress_bar)
+                    self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-290))
+                    self.add_widget(self.progress_bar)
+
+                # Slowly decrease the value of the progress bar
                 self.progress_bar.value = self.progress_bar.value - self.progress_bar.max / iterations
 
         print("Leaving thread " + name)
@@ -773,14 +825,13 @@ class NewsSourceScreen(Screen):
         self.in_screen = False
 
 
-    
 
 class TitleButton(Button):
     article = DictProperty()
 
     def __init__(self, **kwargs):
         super(TitleButton, self).__init__(**kwargs)
-        print("Created title button with id: " + str(self.id))
+        print("Created button: " + str(self.id))
 
     def set_article(self):
         print("Loading article with id: " + str(self.id))
@@ -858,17 +909,22 @@ class WeatherScreen(Screen):
         print("Getting ready to record voice in weather screen...")
         sleep(delay)
         
+        # Create a progress bar when screen is entered
         self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-310))
         self.add_widget(self.progress_bar)
-
+        
+        # If the microphone is opened by another thread, wait for it to finish
         while menu_speech.is_busy():
             print("Microphone is busy, thread " + threadName + " sleeps for 0.5s")
             sleep(0.5) 
         
         print("Starting thread " + threadName)
         
+        # Start thread to update the value of the progress bar
         _thread.start_new_thread(self.update_bar,("weather screen progressbar updater",0))
-        
+       
+        # Loop until a valid command has been recorded
+        # or until the user leaves the screen via a mouse click
         valid_command = False
         while valid_command is False and self.in_screen is True:
             self.started_recording = True
@@ -876,12 +932,16 @@ class WeatherScreen(Screen):
             command = menu_speech.weather_speech()
             self.started_recording = False
             if command == "back":
+                # Set parameters for screen transtition animation
+                self.parent.transition.direction = 'right'
                 self.parent.current = 'main'
                 valid_command = True
             else:
                 print("Did not recognize command")
                 
         print("Leaving thread " + threadName)
+
+        # Remove the progress bar to prevent freezing bugs
         self.remove_widget(self.progress_bar)
         self.in_screen = False
 
@@ -900,15 +960,18 @@ class WeatherScreen(Screen):
                 timer.restart()
             elif self.started_recording is True and self.wait is False:
                 if self.refill is True:
-                    self.progress_bar.value = 100
                     self.refill = False
+                    self.remove_widget(self.progress_bar)
+                    self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-310))
+                    self.add_widget(self.progress_bar)
+
+                # Slowly decrease the value of the progress bar
                 self.progress_bar.value = self.progress_bar.value - self.progress_bar.max / iterations
 
         print("Leaving thread " + name)
 
     def on_leave(self):
         self.in_screen = False
-        self.progress_bar.value = 100
         self.refill = False
             
     
@@ -931,7 +994,7 @@ class PresentWeatherLayout(GridLayout):
         self.set_data()
 
     def set_data(self):
-
+        
         if weather.is_connected() is True:
             self.temperature = str(int(weather.getWeather().temperature)) + "°"
             self.humidity = str(weather.getWeather().humidity) + "%"
@@ -941,7 +1004,6 @@ class PresentWeatherLayout(GridLayout):
             self.image_source = set_weather_image(self.description)
 
 
-# TODO: How often should a callback update the daily forecast?
 class DayWeatherLayout(GridLayout):
     day_forecast = ListProperty()
 
@@ -961,7 +1023,6 @@ class DayWeatherLayout(GridLayout):
                 self.add_widget(layout)
 
 
-# TODO: How often should a callback update the weekly forecast?
 class WeekWeatherLayout(GridLayout):
     week_forecast = ListProperty()
 
@@ -1021,6 +1082,8 @@ class SettingScreen(Screen):
             command = menu_speech.back_speech()
             self.started_recording = False
             if command == "back":
+                # Set screen transtition animation parameters
+                self.parent.transition.direction = 'right'
                 self.parent.current = 'main'
                 valid_command = True
             else:
@@ -1048,8 +1111,11 @@ class SettingScreen(Screen):
                 timer.restart()
             elif self.started_recording is True and self.wait is False:
                 if self.refill is True:
-                    self.progress_bar.value = 100
                     self.refill = False
+                    self.remove_widget(self.progress_bar)
+                    self.progress_bar = ProgressBar(max=100,value=100,pos=(0,-300))
+                    self.add_widget(self.progress_bar)
+
                 self.progress_bar.value = self.progress_bar.value - self.progress_bar.max / iterations
 
         print("Leaving thread " + name)
@@ -1068,7 +1134,9 @@ class SettingScreen(Screen):
 class LogoutButton(Button):
     pass
 
-    
+class ToothbrushButton(Button):
+    pass
+
 class ScreenManagement(ScreenManager):
     pass
 

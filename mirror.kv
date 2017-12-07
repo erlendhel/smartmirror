@@ -247,7 +247,7 @@
 
         GridLayout:
             id: bottom_grid
-            cols: 2
+            cols: 3
             size_hint_y: 0.1
             SettingButton:
                 on_release:
@@ -264,6 +264,17 @@
                     size: 30,30
                     keep_ratio: False
                     pos: self.parent.x + 10, self.parent.y + (self.parent.height / 4)
+            ToothbrushButton:
+                font_size: 50
+                background_color: 0,0,0,1
+                Image:
+                    source: "icons/toothbrush.png"
+                    allow_stretch: True
+                    size: 60.1,30
+                    keep_ratio: False
+                    pos: (bottom_grid.width / 2) - (self.width / 2), self.parent.y + (self.parent.height / 4)
+
+                
             LogoutButton:
                 
                 on_release:
