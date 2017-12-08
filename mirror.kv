@@ -1,0 +1,440 @@
+#: import SwapTransition kivy.uix.screenmanager.SwapTransition
+#: import SlideTransition kivy.uix.screenmanager.SlideTransition
+
+###################### TRICKS AND TIPS ###########################
+
+# To center a widget horizontally inside its parent
+#    - pos: self.parent.width * .5 - self.width * .5, ........
+
+# To highlight the size of a widget:
+#    - canvas.after:
+#				Color:
+#				    rgba: 1,0,0,0.5
+#				Rectangle:
+#					size: self.size
+#					pos: self.pos
+
+###################################################################
+
+
+<ScreenManagement>:
+	transition: SlideTransition()
+	StartupScreen:
+	FaceRecognitionScreen:
+	RegistrationScreen:
+	FaceRegistrationScreen:
+	MainScreen:
+	NewsScreen:
+	NewsSourceScreen:
+	NewsArticleScreen:
+	WeatherScreen:
+	SettingScreen:
+
+<TitleButton>:
+    background_color: 0,0,0,1
+    font_size: 19
+
+    on_press:
+        self.set_article()
+        app.root.transition = SlideTransition()
+		app.root.transition.direction = "left"
+        app.root.current = "article"
+
+<Label>:
+    font_name: "fonts/Hattori_Hanzo.otf"
+
+<BackButton>:
+    on_press:
+        app.root.transition = SlideTransition()
+        app.root.transition.direction = "right"
+        app.root.current = "main"
+    pos: 0,0
+    text: "<"
+    background_color: 0,0,0,1
+    font_size:50
+
+        
+
+<NewsIcon>:
+    on_release:
+        self.set_titles()
+        app.root.transition = SlideTransition()
+        app.root.transition.direction = 'left'
+        app.root.current = "source"
+    
+
+<StartupScreen>:
+    name: "startup"
+    id: startup_screen
+    GridLayout:
+        id: grid
+        spacing: 0,0
+        size_hint_y: 0.5
+        pos: 0, (self.parent.height - self.height) - 100
+        rows: 4
+        Button:
+            id: login
+            text: "Sign in"
+            font_size: 25
+            on_release:
+                app.root.transition = SlideTransition()
+                app.root.transition.direction = "left"
+                app.root.current = "facerec"
+            background_color: 0,0,0,1
+                
+        Button:
+            id: register
+            text: "Register"
+            font_size: 25
+            on_release:
+                app.root.transition = SlideTransition()
+                app.root.transition.direction = "left"
+                #app.root.current = "registration"
+            background_color: 0,0,0,1
+            
+        Button:
+            id: guest
+            text: "Guest"
+            font_size: 25
+            on_release:
+                app.root.transition = SlideTransition()
+                app.root.transition.direction = "left"
+                #app.root.current = "main"
+            background_color: 0,0,0,1
+            
+            
+            
+<FaceRecognitionScreen>:
+    name: "facerec"
+    id: facerec
+    GridLayout:
+        id: facerec_grid
+        size_hint_y: 0.3
+        pos: 0, (self.parent.height - self.height) - 100 
+        rows: 2
+        Label:
+            id: recognizing_label
+            text: "Recognizing face..."
+            font_size: 25
+        
+        
+
+
+<RegistrationScreen>:
+    id: reg
+    name: "registration"
+    GridLayout:
+        size_hint_y: 0.2
+        size_hint_x: 0.2
+        pos: 0, self.parent.height - self.height
+        rows:4
+        Label:
+            id:step1
+            text: "Step 1"
+        Label:
+            id:step2
+            text: "Step 2"
+        Label:
+            id:step3
+            text: "Step 3"
+        Label:
+            id:step4
+            text: "Step 4"
+    #Label:
+    #    text: "Spell your name one character at a time! \n -'back' to delete last character \n -'done' when finished"
+    #    font_size: 25
+    #    pos: self.parent.width * .5 - self.width * .5, self.parent.height / 5
+    GridLayout:
+        id: grid
+        rows:3
+        size_hint_x: 0.3
+        size_hint_y: 0.2
+        pos: self.parent.width * .5 - self.width * .5, self.parent.height / 2
+        Label:
+            id: prompt_label
+            text: 'Enter username:'
+            size_hint_x: 0.5
+        TextInput:
+            id: text_input
+            size_hint_y: 0.8
+            size_hint_x: 0.5
+        SaveButton:
+            id: save_button
+            size_hint_y: 0.5
+            size_hint_x: 0.5
+            text: "Save"
+            on_press:
+                self.save_input(text_input.text)
+                reg.create_facecapture_button()
+        
+
+
+<MainScreen>:
+	name: "main"
+	GridLayout:
+		spacing: 0,0
+		rows:7
+		pos: self.parent.pos
+		size: self.parent.size
+		NavigationGrid:
+		    padding: 25,5
+		    cols: 4
+		    size_hint_y: 0.2
+            Image:
+                source: "icons/navigation/gps.png"
+                size_hint: 0.3 , 0.3
+
+            NavLabel:
+                id: nav_label
+                font_size: 20
+                font_name: "fonts/Hattori_Hanzo.otf"
+
+            Image:
+                source: "icons/navigation/"+ nav_label.travel_mode +".png"
+                size_hint: 0.3 , 0.3
+
+        DateLabel:
+
+			name: "date"
+			text: self.date
+			size_hint: 0.1, 0.1
+			font_size: 25
+			font_name: "fonts/Hattori_Hanzo.otf"
+
+		ClockLabel:
+			name: "clock"
+			text: self.clock
+			size_hint: 0.2,0.2
+			font_size: 90
+			font_name: "fonts/Hattori_Hanzo.otf"
+
+        WeatherButton:
+            size_hint_y: 0.2
+            background_color: 0,0,0,1
+            on_release:
+                app.root.transition = SlideTransition()
+                app.root.transition.direction = 'left'
+                app.root.current = "weather"
+                
+
+            Image:
+                id: image
+                source: self.parent.source
+                pos: self.parent.x + 20, self.parent.y + (self.parent.height / 5.5)
+
+            Label:
+                id: label
+                text: self.parent.temperature
+                background_color: 0,0,0,1
+                font_size: 30
+			    pos: self.parent.x + 95, self.parent.y + 18
+
+            Image:
+                size: 50, 50
+                source: "icons/arrowright.png"
+                pos: self.parent.width - self.width, self.parent.y + (self.parent.height / 2.55)
+
+        SourceLayout:
+            id: icon_container
+            cols:3
+            padding: 20
+            spacing: 10
+            size_hint_y:0.2
+            
+		NewModule:
+		    size_hint_y: 0.2
+		    background_color: 0,0,0,1
+
+        GridLayout:
+            id: bottom_grid
+            cols: 3
+            size_hint_y: 0.1
+            SettingButton:
+                on_release:
+                    
+                    app.root.current = "main"
+                    self.start_arduino()
+                    app.root.transition = SlideTransition()
+                background_color: 0,0,0,1
+
+                font_size: 50
+                Image:
+                    source: "icons/cogwheel.png"
+                    allow_stretch: True
+                    size: 30,30
+                    keep_ratio: False
+                    pos: self.parent.x + 10, self.parent.y + (self.parent.height / 4)
+            ToothbrushButton:
+                font_size: 50
+                background_color: 0,0,0,1
+                Image:
+                    source: "icons/toothbrush.png"
+                    allow_stretch: True
+                    size: 60.1,30
+                    keep_ratio: False
+                    pos: (bottom_grid.width / 2) - (self.width / 2), self.parent.y + (self.parent.height / 4)
+
+                
+            LogoutButton:
+                
+                on_release:
+                    app.root.transition = SwapTransition()
+                    app.root.current = "startup"
+                    
+                background_color: 0,0,0,1
+
+                font_size: 50
+                Image:
+                    source: "icons/logout.png"
+                    allow_stretch: True
+                    size: 30,30
+                    keep_ratio: False
+                    pos: bottom_grid.width - self.width - 10, self.parent.y + (self.parent.height / 4)
+
+    
+
+<WeatherScreen>:
+	name: "weather"
+    GridLayout:
+        rows: 3
+        font_name: "fonts/Hattori_Hanzo.otf"
+        PresentWeatherLayout:
+            padding: 10
+            id: present_weather
+            cols: 2
+            GridLayout:
+                cols: 2
+                Image:
+                    source: present_weather.image_source
+                Label:
+                    text: root.ids.present_weather.temperature
+                    font_size: 50
+                    font_name: "fonts/Hattori_Hanzo.otf"
+                    id: current_temperature
+            GridLayout:
+                rows: 3
+                Label:
+                    text: "Humidity: " + root.ids.present_weather.humidity
+                    font_size: 22
+                    font_name: "fonts/Hattori_Hanzo.otf"
+                Label:
+                    text: "Sunrise: " + root.ids.present_weather.sunrise
+                    font_size: 22
+                    font_name: "fonts/Hattori_Hanzo.otf"
+                Label:
+                    text: "Sunset: " + root.ids.present_weather.sunset
+                    font_size: 22
+                    font_name: "fonts/Hattori_Hanzo.otf"
+
+        # The seven columns are made in a loop in python file
+        DayWeatherLayout:
+            padding: 10,40
+            id: day_weather
+            cols:7
+
+        # The seven columns are made in a loop in python file
+        WeekWeatherLayout:
+            padding: 10,40
+            id: week_weather
+            cols:7
+
+
+	Button:
+		on_release: 
+			app.root.current = "main"
+			app.root.transition.direction = "right"
+			app.root.transition = SwapTransition()
+		pos: 0,1
+		text: "<"
+		background_color: 0,0,0,1
+		size_hint: 0.08,0.05
+		font_size:50
+
+		
+<NewsScreen>:
+	name: "news"
+	FloatLayout:
+		Button:
+			on_release: 
+				app.root.current = "main"
+				app.root.transition.direction = "right"
+				app.root.transition = SwapTransition()
+			pos: 0,1
+			text: "<"
+			background_color: 0,0,0,1
+			size_hint: 0.08,0.05
+			font_size:50
+
+
+<NewsSourceScreen>:
+    name: "source"
+    id: source
+    GridLayout:
+        id: grid
+        rows: len(source.titles) + 2 # Titles plus back button and logo
+        padding: 10
+
+<NewsArticleScreen>:
+    name: "article"
+    id: article
+    GridLayout:
+        rows: 3
+        TitleLabel:
+            font_size: 27
+            id: title
+            text_size: self.width, None
+            font_name: "fonts/Hattori_Hanzo.otf"
+            halign: 'center'
+            size_hint_y: 0.4
+
+        PublishedLabel:
+            id: published
+            text: "Published at: "
+            font_name: "fonts/Hattori_Hanzo.otf"
+            font_size: 20
+            size_hint_y: 0.1
+
+        DescriptionLabel:
+            id: description
+            text_size: self.width, None
+            font_name: "fonts/Hattori_Hanzo.otf"
+            halign: 'center'
+            valign: 'top'
+            padding_y: 10
+            font_size: 22
+
+    FloatLayout:
+		Button:
+			on_release:
+			    app.root.transition = SlideTransition()
+			    app.root.transition.direction = "right"
+				app.root.current = "source"
+
+			pos: 0,1
+			text: "<"
+			background_color: 0,0,0,1
+			size_hint: 0.08,0.05
+			font_size:50
+
+
+
+<SettingScreen>:
+	name: "settings"
+	FloatLayout:
+		Button:
+			on_release:
+				app.root.current = "main"
+				app.root.transition.direction = "right"
+				app.root.transition = SwapTransition()
+			pos: 0,1
+			text: "<"
+			background_color: 0,0,0,1
+			size_hint: 0.08,0.05
+			font_size:50
+
+
+
+
+
+	
+	

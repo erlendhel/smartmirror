@@ -39,11 +39,14 @@ class Source(object):
     # Function to get the name of the source given by the id in the newsSources list
     # Returns type: str
     def init_name(self, source_id):
-
-        for newsSource in newsSources:
-            if newsSource['id'] == source_id:
-                name = newsSource['name']
-                return name
+        if newsSources is not None:
+            for newsSource in newsSources:
+                if newsSource['id'] == source_id:
+                    name = newsSource['name']
+                    return name
+        else:
+            print('newsSources is None')
+            return None
 
     # Function to get articles for the source given by the id
     def init_articles(self, source_id):
@@ -52,16 +55,14 @@ class Source(object):
         params = {}
         article_num = 0
         articles = list()
-
-        for article in api.articles(source_id, params):
-            article_id = source_id + str(article_num)
-            title = article['title']
-            description = article['description']
-            published = article['publishedAt']
-            article = ArticleImport.NewsArticle()
-            a = article.set_article(article_id, title, description, published)
-            articles.append(a)
-            article_num += 1
-
-        self.source['articles'] = articles
-
+        if newsSources is not None:
+            for article in api.articles(source_id, params):
+                article_id = source_id + str(article_num)
+                title = article['title']
+                description = article['description']
+                published = article['publishedAt']
+                article = ArticleImport.NewsArticle()
+                a = article.set_article(article_id, title, description, published)
+                articles.append(a)
+                article_num += 1
+            self.source['articles'] = articles

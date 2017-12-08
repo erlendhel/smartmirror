@@ -11,7 +11,12 @@ class NewsAPI(object):
     def request(self, endpoint, params={}):
         params['apiKey'] = self.api_key
         endpoint_url = '{}{}?{}'.format(self.base_endpoint, endpoint, urllib.parse.urlencode(params))
-        self.response = requests.get(endpoint_url)
+        # Catch any errors from the response module, return empty list if any exceptions are thrown
+        try:
+            self.response = requests.get(endpoint_url)
+        except requests.exceptions.RequestException:
+            print('Could not connect to news API')
+            return None
         response_dict = self.response.json()
 
         if self.response.status_code == 200 and \
@@ -20,7 +25,6 @@ class NewsAPI(object):
             self.data = response_dict[endpoint]
         else:
             self.data = []
-
         return self.data
 
     def articles(self, source, params={}):
